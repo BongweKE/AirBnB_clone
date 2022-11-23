@@ -3,17 +3,29 @@
 """
 import uuid
 import datetime
+from models import storage
 
 class BaseModel:
     """
 
     """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """Initialization of BaseModel instance
         """
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.datetime.utcnow()
-        self.updated_at = datetime.datetime.utcnow()
+        if len(kwargs) > 0:
+            # Reload a saved instance
+            del kwargs['__class__']
+            kwargs['created_at'] = datetime.datetime.fromisoformat(
+                kwargs['created_at'])
+            kwargs['updated_at'] = datetime.datetime.fromisoformat(
+                kwargs['updated_at'])
+            self.__dict__.update(kwargs)
+        else:
+            # Create a new instance
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.datetime.utcnow()
+            self.updated_at = datetime.datetime.utcnow()
+            storage.new(self)
 
     def __str__(self):
         """Definition of how an instance is represented to the user
@@ -29,6 +41,7 @@ class BaseModel:
         `updated_at` with the current datetime
         """
         self.updated_at = datetime.datetime.utcnow()
+        storage.save()
 
     def to_dict(self):
         '''Returns a dictionary containing all key/values of the instance'''
