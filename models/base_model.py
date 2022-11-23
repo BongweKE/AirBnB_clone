@@ -29,3 +29,17 @@ class BaseModel:
         `updated_at` with the current datetime
         """
         self.updated_at = datetime.datetime.utcnow()
+
+    def to_dict(self):
+        '''Returns a dictionary containing all key/values of the instance'''
+
+        dct = dict(self.__dict__)
+
+        crt_at_str = dct['created_at'].isoformat()
+        dct['created_at'] = crt_at_str
+
+        upd_at_str = dct['updated_at'].isoformat()
+        dct['updated_at'] = upd_at_str
+
+        dct.update(__class__=self.__class__.__name__)
+        return dct
