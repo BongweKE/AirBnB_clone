@@ -1,0 +1,35 @@
+    def do_destroy(self, args_str):
+        ''' Deletes an instance based on name and id.'''
+        className = ''
+        idd = ''
+
+        if args_str:
+            args_list = args_str.split()
+            className = args_list[0]
+            if len(args_list) > 1:
+                idd = args_list[1]
+
+        if className == '':
+            print("** class name missing **")
+            return
+
+        try:
+            cls = cls_of(className)
+        except NameError:
+            print("** class doesn't exist **")
+            return
+
+        if idd == '':
+            print("** instance id missing **")
+            return
+
+        key = className + "." + idd
+
+        all_objs = storage.all()  # collect the dict of all current objects
+
+        try:
+            del all_objs[key]
+            storage.save()
+        except KeyError:
+            #  No instance with id, idd
+            print("** no instance found **")
