@@ -5,6 +5,14 @@ and deserialozation of BaseModel instances.
 import json
 import datetime
 
+i = 0
+try:
+    from models.base_model import BaseModel
+    print("import {}".format(i))
+    i += 1
+except ImportError:
+    print("Failed to import BaseModel")
+    #pass
 
 class FileStorage:
     ''' A class that provides the necessary file storage methods and attributes
@@ -22,39 +30,36 @@ class FileStorage:
         ''' Adds obj to the storage dictionary.
         '''
         FileStorage.__objects.update(
-                {f"{obj.__class__.__name__}.{obj.id}": obj.to_dict()})
+                {f"{obj.__class__.__name__}.{obj.id}": obj})
 
     def save(self):
         ''' Serializes __objects to a JSON file.
         '''
         with open(FileStorage.__file_path, 'w', encoding='utf-8') as fout:
+            srlzd_objs = {}  # the serialized form of __objects
             for key in FileStorage.__objects:
-                # Convert datetime objects to serializable string
-                obj_dict = FileStorage.__objects[key]
-                dtime_obj = obj_dict['created_at']
-                if type(dtime_obj) is not str:
-                    obj_dict['created_at'] = dtime_obj.isoformat()
-
-                dtime_obj = obj_dict['updated_at']
-                if type(dtime_obj) is not str:
-                    obj_dict['updated_at'] = dtime_obj.isoformat()
-            json.dump(FileStorage.__objects, fout)
+                # Convert each object in __objects to serializable forms
+                obj = FileStorage.__objects[key]  # object for each key
+                obj_dict = obj.to_dict()  # serializable form of obj
+                srlzd_objs.update({key: obj_dict})  # update with serializables
+            json.dump(srlzd_objs, fout)  # serialize __objects
 
     def reload(self):
         ''' Deserializes the JSON file into __objects dict.
         '''
+        global i
         try:
             with open(FileStorage.__file_path, 'r', encoding='utf-8') as fin:
-                FileStorage.__objects = json.load(fin)
-                # print(FileStorage.__objects)
-                for key in FileStorage.__objects:
-                    obj_dict = FileStorage.__objects[key]
-                    obj_dict['created_at'] =\
-                        datetime.datetime.fromisoformat(
-                            obj_dict['created_at'])
-
-                    obj_dict['updated_at'] =\
-                        datetime.datetime.fromisoformat(
-                            obj_dict['updated_at'])
+                objects = json.load(fin) # collect all saved objects
+                for key in objects:
+                    # Recursively create objects from the collection
+                    try:
+                        obj = BaseModel(**(objects[key])) # create a BaseModel instance
+                    except NameError:
+                        from models.base_model import BaseModel
+                        print("import {}".format(i))
+                        i += 1
+                        obj = BaseModel(**(objects[key])) # create a BaseModel instance
+                    FileStorage.__objects.update({key: obj}) # update __objects
         except FileNotFoundError:
             pass

@@ -14,8 +14,10 @@ class BaseModel:
         """Initialization of BaseModel instance
         """
 
+        print("Before update block")
         if len(kwargs) > 0:
             # Reload a saved instance
+            print("dict before update:", self.__dict__)
             del kwargs['__class__']
             kwargs['created_at'] =\
                 datetime.datetime.fromisoformat(kwargs['created_at'])
