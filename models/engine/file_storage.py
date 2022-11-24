@@ -5,14 +5,10 @@ and deserialozation of BaseModel instances.
 import json
 import datetime
 
-i = 0
 try:
     from models.base_model import BaseModel
-    print("import {}".format(i))
-    i += 1
 except ImportError:
-    print("Failed to import BaseModel")
-    #pass
+    pass
 
 class FileStorage:
     ''' A class that provides the necessary file storage methods and attributes
@@ -47,19 +43,13 @@ class FileStorage:
     def reload(self):
         ''' Deserializes the JSON file into __objects dict.
         '''
-        global i
         try:
             with open(FileStorage.__file_path, 'r', encoding='utf-8') as fin:
+                from models.base_model import BaseModel
                 objects = json.load(fin) # collect all saved objects
                 for key in objects:
                     # Recursively create objects from the collection
-                    try:
-                        obj = BaseModel(**(objects[key])) # create a BaseModel instance
-                    except NameError:
-                        from models.base_model import BaseModel
-                        print("import {}".format(i))
-                        i += 1
-                        obj = BaseModel(**(objects[key])) # create a BaseModel instance
+                    obj = BaseModel(**(objects[key])) # create a BaseModel instance
                     FileStorage.__objects.update({key: obj}) # update __objects
         except FileNotFoundError:
             pass
