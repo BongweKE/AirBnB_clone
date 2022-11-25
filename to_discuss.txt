@@ -1,0 +1,2 @@
+- Reference to BaseModel creates an instance even when using kwargs e.g in all() function
+- Possible ways to reference file name dynamically
