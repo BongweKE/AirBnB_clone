@@ -2,6 +2,7 @@
 ''' Implements a console for the project.
 '''
 
+
 def cls_of(cls_name):
     ''' Returns the class object whose name is cls_name. '''
 
