@@ -53,6 +53,162 @@ class HBNBCommand(cmd.Cmd):
                     completions.append(name)
         return completions
 
+    def precmd(self, line):
+        line_list = line.split()
+        left_split = line_list[0].split('(')[0]
+        pattern = left_split + '('  # pattern should look like `User.show(`
+
+        match pattern:
+            case "User.all(":
+                line = "all User"
+                return line
+            case "BaseModel.all(":
+                line = "all BaseModel"
+                return line
+            case "Place.all(":
+                line = "all Place"
+                return line
+            case "State.all(":
+                line = "all State"
+                return line
+            case "City.all(":
+                line = "all City"
+                return line
+            case "Amenity.all(":
+                line = "all Amenity"
+                return line
+            case "Review.all(":
+                line = "all Review"
+                return line
+# ------------------------------------------
+            case "User.count(":
+                line = "count User"
+                return line
+            case "BaseModel.count(":
+                line = "count BaseModel"
+                return line
+            case "Place.count(":
+                line = "count Place"
+                return line
+            case "State.count(":
+                line = "count State"
+                return line
+            case "City.count(":
+                line = "count City"
+                return line
+            case "Amenity.count(":
+                line = "count Amenity"
+                return line
+            case "Review.count(":
+                line = "count Review"
+                return line
+# -------------------------------------------
+            case "User.show(":
+                idd = get_id(line)
+                line = f"show User {idd}"
+                return line
+            case "BaseModel.show(":
+                idd = get_id(line)
+                line = f"show BaseModel {idd}"
+                return line
+            case "Place.show(":
+                idd = get_id(line)
+                line = f"show Place {idd}"
+                return line
+            case "State.show(":
+                idd = get_id(line)
+                line = f"show State {idd}"
+                return line
+            case "City.show(":
+                idd = get_id(line)
+                line = f"show City {idd}"
+                return line
+            case "Amenity.show(":
+                idd = get_id(line)
+                line = f"show Amenity {idd}"
+                return line
+            case "Review.show(":
+                idd = get_id(line)
+                line = f"show Review {idd}"
+                return line
+# -------------------------------------------
+            case "User.destroy(":
+                idd = get_id(line)
+                line = f"destroy User {idd}"
+                return line
+            case "BaseModel.destroy(":
+                idd = get_id(line)
+                line = f"destroy BaseModel {idd}"
+                return line
+            case "Place.destroy(":
+                idd = get_id(line)
+                line = f"destroy Place {idd}"
+                return line
+            case "State.destroy(":
+                idd = get_id(line)
+                line = f"destroy State {idd}"
+                return line
+            case "City.destroy(":
+                idd = get_id(line)
+                line = f"destroy City {idd}"
+                return line
+            case "Amenity.destroy(":
+                idd = get_id(line)
+                line = f"destroy Amenity {idd}"
+                return line
+            case "Review.destroy(":
+                idd = get_id(line)
+                line = f"destroy Review {idd}"
+                return line
+# -------------------------------------------
+            case "User.update(":
+                idd, name, val = get_idNameVal(line)
+                line = f"update User {idd} {name} {val}"
+                return line
+            case "BaseModel.update(":
+                idd, name, val = get_idNameVal(line)
+                line = f"update BaseModel {idd} {name} {val}"
+                return line
+            case "Place.update(":
+                idd, name, val = get_idNameVal(line)
+                line = f"update Place {idd} {name} {val}"
+                return line
+            case "State.update(":
+                idd, name, val = get_idNameVal(line)
+                line = f"update State {idd} {name} {val}"
+                return line
+            case "City.update(":
+                idd, name, val = get_idNameVal(line)
+                line = f"update City {idd} {name} {val}"
+                return line
+            case "Amenity.update(":
+                idd, name, val = get_idNameVal(line)
+                line = f"update Amenity {idd} {name} {val}"
+                return line
+            case "Review.update(":
+                idd, name, val = get_idNameVal(line)
+                line = f"update Review {idd} {name} {val}"
+                return line
+            case _:
+                return line
+# -------------------------------------------
+
+    def do_count(self, args_str):
+        ''' Count the number of instances of the specified class.'''
+        count = 0
+        clsName = args_str.split()[0]  # retrieve class name from argument
+
+        for key in storage.all():
+            if key.startswith(clsName + '.'):
+                count += 1
+        print(count)
+
+    def help_count(self):
+        ''' Help for count command.'''
+        print(
+                "Count the number of instances of the specified class."
+                "\n\tUsage: <class_name>.count()")
+
     def do_create(self, className):
         ''' Creates a new instance of BaseModel. '''
         from classes import cls_of
@@ -311,6 +467,39 @@ def get_quoted(str_list, index):
 
     s = s.strip('"')
     return (s, idx)
+
+
+def get_id(line):
+    ''' Returns the id string from the cmd line `<cls_name>.show(<id>)`
+    '''
+    id_left_paren = line.split('(')[1]  # id + left parenthesis
+    id = id_left_paren.split(')')[0]  # id with possible double quote char
+    id = id.strip('"')  # strip possible left and right double quotes
+
+    return id
+
+
+def get_idNameVal(line):
+    ''' Return a tuple containing id, attribute name, and value from the
+    cmd line <class name>.update(<id>, <attribute name>, <attribute value>).
+
+    Note: the three attributes in parentheses
+    must be separated by a comma, optionally followed by a space character.
+    '''
+
+    strpd_attr_list = ['', '', '']
+    id_left_paren = line.split('(')[1]  # attributes + left parenthesis
+    id = id_left_paren.split(')')[0]  # attrs with possible double quote chars
+    attr_list = id.split(',')  # get list of comma_separated args
+    attr_list = [x.strip() for x in attr_list]  # strip whitespace
+
+    for i in range(len(attr_list)):
+        if i >= len(strpd_attr_list):
+            break
+        attr = attr_list[i]
+        strpd_attr_list[i] = attr.strip('"')
+
+    return strpd_attr_list
 
 
 if __name__ == '__main__':

@@ -1,13 +1,11 @@
 #!/usr/bin/python3
-""" The city module.
+""" The place module.
 """
-import uuid
-import datetime
 from models.base_model import BaseModel
 
 
-class City(BaseModel):
-    """ Implementation of the City class.
+class Place(BaseModel):
+    """ Implementation of the Place class.
     """
 
     city_id = ''

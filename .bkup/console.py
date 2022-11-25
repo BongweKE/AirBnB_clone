@@ -12,6 +12,12 @@ class HBNBCommand(cmd.Cmd):
     '''
 
     prompt = "(hbnb) "
+    args = [
+            "email", "password", "first_name", "last_name", "name",
+            "state_id", "city_id", "user_id", "description", "number_rooms",
+            "number_bathrooms", "max_guest", "price_by_night", "longitude",
+            "latitude", "amenity_ids", "place_id", "text", "BaseModel", "User",
+            "Place", "State", "City", "Amenity", "Review"]
 
     def do_quit(self, quitt):
         ''' Quits from the interpreter. '''
@@ -33,6 +39,117 @@ class HBNBCommand(cmd.Cmd):
     def emptyline(self):
         ''' Defines actions for an empty command. '''
         pass
+
+    def completedefault(self, text, line, begidx, endidx):
+        ''' Auto argument completion implementation.'''
+        completions = []
+        if not text:
+            # No prefix text to match yet
+            completions.extend(self.args)  # return full list
+        else:
+            # There is some prefix text
+            for name in self.args:
+                if name.startswith(text):
+                    completions.append(name)
+        return completions
+
+    def precmd(self, line):
+        line_list = line.split()
+        left_split = line_list[0].split('(')[0]
+        pattern = left_split + '('  # pattern should look like `User.show(`
+        args_str = line.removeprefix(line_list[0])
+        
+        match pattern:
+            case "User.all(":
+                line = "all User"
+                return line
+            case "BaseModel.all(":
+                line = "all BaseModel"
+                return line
+            case "Place.all(":
+                line = "all Place"
+                return line
+            case "State.all(":
+                line = "all State"
+                return line
+            case "City.all(":
+                line = "all City"
+                return line
+            case "Amenity.all(":
+                line = "all Amenity"
+                return line
+            case "Review.all(":
+                line = "all Review"
+                return line
+# ------------------------------------------
+            case "User.count(":
+                line = "count User"
+                return line
+            case "BaseModel.count(":
+                line = "count BaseModel"
+                return line
+            case "Place.count(":
+                line = "count Place"
+                return line
+            case "State.count(":
+                line = "count State"
+                return line
+            case "City.count(":
+                line = "count City"
+                return line
+            case "Amenity.count(":
+                line = "count Amenity"
+                return line
+            case "Review.count(":
+                line = "count Review"
+                return line
+# -------------------------------------------
+            case "User.show(":
+                idd = get_id(line)
+                line = f"show User {idd}"
+                return line
+            case "BaseModel.show(":
+                idd = get_id(line)
+                line = f"show BaseModel {idd}"
+                return line
+            case "Place.show(":
+                idd = get_id(line)
+                line = f"show Place {idd}"
+                return line
+            case "State.show(":
+                idd = get_id(line)
+                line = f"show State {idd}"
+                return line
+            case "City.show(":
+                idd = get_id(line)
+                line = f"show City {idd}"
+                return line
+            case "Amenity.show(":
+                idd = get_id(line)
+                line = f"show Amenity {idd}"
+                return line
+            case "Review.show(":
+                idd = get_id(line)
+                line = f"show Review {idd}"
+                return line
+            case _:
+                return line
+# -------------------------------------------
+    def do_count(self, args_str):
+        ''' Count the number of instances of the specified class.'''
+        count = 0
+        clsName = args_str.split()[0]  # retrieve class name from argument
+
+        for key in storage.all():
+            if key.startswith(clsName + '.'):
+                count += 1
+        print(count)
+
+    def help_count(self):
+        ''' Help for count command.'''
+        print(
+                "Count the number of instances of the specified class."
+                "\n\tUsage: <class_name>.count()")
 
     def do_create(self, className):
         ''' Creates a new instance of BaseModel. '''
@@ -201,13 +318,7 @@ class HBNBCommand(cmd.Cmd):
                 attr_name = args_list[idx]
                 idx += 1
             if len(args_list) > 3:
-                try:
-                    attr_val = int(args_list[idx])
-                except ValueError:
-                    try:
-                        attr_val = float(args_list[idx])
-                    except ValueError:
-                        attr_val, idx = get_quoted(args_list, idx)
+                attr_val, idx = get_quoted(args_list, idx)
 
         if className == '':
             print("** class name missing **")
@@ -238,6 +349,20 @@ class HBNBCommand(cmd.Cmd):
             print("** attribute name missing **")
             return
         if attr_val == '':
+            print("** value missing **")
+            return
+
+        try:
+            # Get type of attribute value
+            attr_type = type(getattr(cls, attr_name))
+        except AttributeError:
+            print("** attribute name missing **")
+            return
+
+        try:
+            # Attempt type-casting
+            attr_val = attr_type(attr_val)  # typecast to class-defined type
+        except (ValueError, TypeError):
             print("** value missing **")
             return
 
@@ -284,6 +409,16 @@ def get_quoted(str_list, index):
 
     s = s.strip('"')
     return (s, idx)
+
+
+def get_id(line):
+    ''' Returns the id string from the cmd line `<cls_name>.show(<id>)`
+    '''
+    id_left_paren = line.split('(')[1]  # id + left parenthesis
+    id = id_left_paren.split(')')[0]  # id with possible double quote char
+    id = id.strip('"')  # strip possible left and right double quotes
+
+    return id
 
 
 if __name__ == '__main__':
