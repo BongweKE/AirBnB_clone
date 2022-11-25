@@ -3,6 +3,11 @@
 '''
 from models.base_model import BaseModel
 from models.user import User
+from models.state import State
+from models.place import Place
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
 
 
 def cls_of(cls_name):
@@ -13,5 +18,15 @@ def cls_of(cls_name):
             return BaseModel
         case "User":
             return User
+        case "State":
+            return State
+        case "Place":
+            return Place
+        case "City":
+            return City
+        case "Amenity":
+            return Amenity
+        case "Review":
+            return Review
         case _:
             raise NameError

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 ''' Implements a console for the project.
 '''
-from classes import cls_of
+# from classes import cls_of
 import cmd
 from models import storage
 from models.base_model import BaseModel
@@ -36,6 +36,8 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, className):
         ''' Creates a new instance of BaseModel. '''
+        from classes import cls_of
+
         if className == '':
             print("** class name missing **")
             return
@@ -58,6 +60,8 @@ class HBNBCommand(cmd.Cmd):
         ''' Prints the string representation of
         an instance based on the class name and id.
         '''
+        from classes import cls_of
+
         if className:
             args = className.split()
             className = args[0]
@@ -96,6 +100,8 @@ class HBNBCommand(cmd.Cmd):
 
     def do_destroy(self, args_str):
         ''' Deletes an instance based on name and id.'''
+        from classes import cls_of
+
         className = ''
         idd = ''
 
@@ -138,6 +144,8 @@ class HBNBCommand(cmd.Cmd):
 
     def do_all(self, args_str):
         ''' Prints the string representation of all instances.'''
+        from classes import cls_of
+
         className = ''
 
         if args_str:
@@ -174,6 +182,8 @@ class HBNBCommand(cmd.Cmd):
 
     def do_update(self, args_str):
         ''' Updates an instance based on name and id.'''
+        from classes import cls_of
+
         className = ''
         idd = ''
         attr_name = ''
@@ -240,18 +250,6 @@ class HBNBCommand(cmd.Cmd):
         print(
                 'Updates instances with attributes.\n\tUsage: '
                 'update <class name> <id> <attribute name> "<attribute val>"')
-
-
-"""
-def cls_of(cls_name):
-    ''' Returns the class object whose name is cls_name. '''
-
-    match cls_name:
-        case "BaseModel":
-            return BaseModel
-        case _:
-            raise NameError
-"""
 
 
 def get_quoted(str_list, index):

@@ -201,13 +201,7 @@ class HBNBCommand(cmd.Cmd):
                 attr_name = args_list[idx]
                 idx += 1
             if len(args_list) > 3:
-                try:
-                    attr_val = int(args_list[idx])
-                except ValueError:
-                    try:
-                        attr_val = float(args_list[idx])
-                    except ValueError:
-                        attr_val, idx = get_quoted(args_list, idx)
+                attr_val, idx = get_quoted(args_list, idx)
 
         if className == '':
             print("** class name missing **")
@@ -238,6 +232,20 @@ class HBNBCommand(cmd.Cmd):
             print("** attribute name missing **")
             return
         if attr_val == '':
+            print("** value missing **")
+            return
+
+        try:
+            # Get type of attribute value
+            attr_type = type(getattr(cls, attr_name))
+        except AttributeError:
+            print("** attribute name missing **")
+            return
+
+        try:
+            # Attempt type-casting
+            attr_val = attr_type(attr_val)  # typecast to class-defined type
+        except (ValueError, TypeError):
             print("** value missing **")
             return
 
