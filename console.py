@@ -12,6 +12,7 @@ an empty line + ENTER shouldn’t execute anything
 """
 import cmd
 import json
+import os
 from models import storage
 from models.base_model import BaseModel
 
@@ -50,9 +51,10 @@ class HBNBCommand(cmd.Cmd):
         """
 
         if arg == "BaseModel":
-            b = BaseModel()
-            b.save()
-            print(b.id)
+            my_model = BaseModel()
+            my_model.save()
+            print(my_model.id)
+            storage.save()
         elif arg is "":
             print("** class name missing **")
         else:
@@ -151,36 +153,70 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, arg):
         """Prints all string representation of all instances
         based or not on the class name.
+        _______________________________
+        Examples
+        _______________________________
+
         (hbnb) all
         [BaseModel] (1ed39e47-8274-4ce5-a178-864247175f99) {'id': '1ed39e47.., ...)}
         ...
         ...
+        (hbnb) all BaseModel
+        [BaseModel] (1ed39e47-8274-4ce5-a178-864247175f99) {'id': '1ed39e47.., ...)}
+        ...
+        ...
+        _______________________________
+        Expected Error(s)
+        _______________________________
+
+        (hbnb) all FakeClass
+        ** class doesn't exist **
         Ex: $ all BaseModel or $ all
         """
+        # Temporary Fix for increasing number of objects in json file
+        # save initial objs then write them back
+        original_objs = storage.all()
+        original_objs = original_objs.copy()
+
+        # file access using json:
+        filename = "file.json"
+        # ensure file exists
+        isExists = os.path.exists(filename)
+        # and is not empty
+        isEmpty = isExists and os.stat("file.json").st_size == 0
+        # for it to be useful with json
+        isUseful = isExists and not isEmpty
+
         if arg is "":
-            try:
-                with open("file.json", 'r') as f:
+            # change back to read only once you shift back from temp fix
+            if isUseful:
+                with open(filename, 'r') as f:
                     all_objs = json.loads(f.read())
-                for obj in all_objs:
-                    print(BaseModel(obj))
-            except FileNotFoundError:
-                #file has not yet been created
-                pass
+                    for obj in all_objs:
+                        print(BaseModel(obj))
+                # Currently, Printing using this method creates duplicates
+                # therefore use the original dict of object to overwrite the
+                # json file
+                with open(filename, 'w') as f:
+                    json.dump(original_objs, f)
+
         else:
             if arg not in expected:
-                print("")
+                print("** class doesn't exist **")
             try:
-                with open("file.json", 'r') as f:
-                    all_objs = json.loads(f.read())
-                for obj_key in all_objs.keys():
-                    obj = all_objs[obj_key]
-                    if obj['__class__'] == "{}".format(arg):
-                        print(BaseModel(obj))
-            except FileNotFoundError:
-                #file has not yet been created
-                pass
+                if isUseful:
+                    with open(filename, 'r') as f:
+                        all_objs = json.loads(f.read())
+                        for obj_key in all_objs.keys():
+                            obj = all_objs[obj_key]
+                            if obj['__class__'] == "{}".format(arg):
+                                print(BaseModel(obj))
+                    # Currently, Printing using this method creates duplicates
+                    # therefore use the original dict of object to overwrite the
+                    # json file
+                    with open(filename, 'w') as f:
+                        json.dump(original_objs, f)
                 
-        
     def emptyline(self):
         """Ensure when enter is pressed in an empty prompt
         all it does is show another prompt"""

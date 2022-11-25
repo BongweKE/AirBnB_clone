@@ -15,6 +15,7 @@ class FileStorage:
         """Return all instances of objects managed using the
         FileStorage class
         """
+        self.reload()
         return type(self).__objects
 
     def new(self, obj):

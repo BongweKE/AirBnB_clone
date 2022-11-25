@@ -26,7 +26,8 @@ class BaseModel:
             self.created_at = datetime.datetime.utcnow()
             self.updated_at = datetime.datetime.utcnow()
             storage.new(self)
-
+        # To ensure new instances are saved
+        storage.save()
     def __str__(self):
         """Definition of how an instance is represented to the user
         Format: [<class name>] (<self.id>) <self.__dict__>
@@ -41,6 +42,7 @@ class BaseModel:
         `updated_at` with the current datetime
         """
         self.updated_at = datetime.datetime.utcnow()
+        storage.new(self)
         storage.save()
 
     def to_dict(self):
