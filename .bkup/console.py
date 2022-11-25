@@ -171,6 +171,71 @@ class HBNBCommand(cmd.Cmd):
                 "Prints the string representation of all instances."
                 "\n\tUsage: all [<class_name>]")
 
+    def do_update(self, args_str):
+        ''' Updates an instance based on name and id.'''
+        className = ''
+        idd = ''
+        attr_name = ''
+        attr_val = ''
+
+        if args_str:
+            args_list = args_str.split()
+            className = args_list[0]
+            if len(args_list) > 1:
+                idd = args_list[1]
+            if len(args_list) > 2:
+                attr_name = args_list[2]
+            if len(args_list) > 3:
+                try:
+                    attr_val = int(args_list[3])
+                except ValueError:
+                    try:
+                        attr_val = float(args_list[3])
+                    except ValueError:
+                        attr_val = args_list[3]
+
+        if className == '':
+            print("** class name missing **")
+            return
+
+        try:
+            cls = cls_of(className)
+        except NameError:
+            print("** class doesn't exist **")
+            return
+
+        if idd == '':
+            print("** instance id missing **")
+            return
+
+        key = className + "." + idd
+
+        all_objs = storage.all()  # collect the dict of all current objects
+
+        try:
+            obj = all_objs[key]
+        except KeyError:
+            #  No instance with id, idd
+            print("** no instance found **")
+            return
+
+        if attr_name == '':
+            print("** attribute name missing **")
+            return
+        if attr_val == '':
+            print("** value missing **")
+            return
+
+        # Update the provided attributes
+        setattr(obj, attr_name, attr_val)
+        storage.save()
+
+    def help_update(self):
+        ''' Help for update command.'''
+        print(
+                'Updates instances with attributes.\n\tUsage: '
+                'update <class name> <id> <attribute name> "<attribute val>"')
+
 
 def cls_of(cls_name):
     ''' Returns the class object whose name is cls_name. '''

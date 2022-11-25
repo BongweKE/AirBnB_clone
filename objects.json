@@ -1,1 +1,1 @@
-{"BaseModel.aecd96d6-ce08-4430-8f66-14c739ab316d": {"id": "aecd96d6-ce08-4430-8f66-14c739ab316d", "created_at": "2022-11-24T21:10:42.622917", "updated_at": "2022-11-24T21:10:42.622928", "food": "rice", "__class__": "BaseModel"}}
+{"BaseModel.8a20e921-6fa4-4c77-a6dc-301f3eac46ba": {"id": "8a20e921-6fa4-4c77-a6dc-301f3eac46ba", "created_at": "2022-11-25T07:13:16.452254", "updated_at": "2022-11-25T07:13:16.453357", "age": 32, "email": "obisann@gmail.com", "hobby": "football video games", "__class__": "BaseModel"}}
