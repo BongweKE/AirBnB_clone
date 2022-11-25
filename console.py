@@ -279,7 +279,7 @@ def get_quoted(str_list, index):
                 s += ' ' + str_list[i]
                 idx = i
                 break
-            s += ' ' + str_list[i]  # original space was striped off by splitting
+            s += ' ' + str_list[i]  # original space striped off by splitting
 
     s = s.strip('"')
     return (s, idx)
