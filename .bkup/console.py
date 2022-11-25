@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 ''' Implements a console for the project.
 '''
+from classes import cls_of
 import cmd
 from models import storage
 from models.base_model import BaseModel
@@ -177,22 +178,26 @@ class HBNBCommand(cmd.Cmd):
         idd = ''
         attr_name = ''
         attr_val = ''
+        idx = 0
 
         if args_str:
             args_list = args_str.split()
-            className = args_list[0]
+            className = args_list[idx]
+            idx += 1
             if len(args_list) > 1:
-                idd = args_list[1]
+                idd = args_list[idx]
+                idx += 1
             if len(args_list) > 2:
-                attr_name = args_list[2]
+                attr_name = args_list[idx]
+                idx += 1
             if len(args_list) > 3:
                 try:
-                    attr_val = int(args_list[3])
+                    attr_val = int(args_list[idx])
                 except ValueError:
                     try:
-                        attr_val = float(args_list[3])
+                        attr_val = float(args_list[idx])
                     except ValueError:
-                        attr_val = args_list[3]
+                        attr_val, idx = get_quoted(args_list, idx)
 
         if className == '':
             print("** class name missing **")
@@ -237,6 +242,7 @@ class HBNBCommand(cmd.Cmd):
                 'update <class name> <id> <attribute name> "<attribute val>"')
 
 
+"""
 def cls_of(cls_name):
     ''' Returns the class object whose name is cls_name. '''
 
@@ -245,6 +251,41 @@ def cls_of(cls_name):
             return BaseModel
         case _:
             raise NameError
+"""
+
+
+def get_quoted(str_list, index):
+    ''' Returns a quoted string from str_list, starting from index idx.
+
+    Args:
+        str_list (list): list of strings
+        idx (int): the start index of the potentially quoted string in list
+
+    Return:
+        2-tuple: where the first item is the
+        potentially quoted string, stripped of the double quotes,
+        and the second item is end index of the string in the list.
+
+    Note: there has to be a word in str_list that ends with the
+    double quote character, otherwise the result is undefined.
+    '''
+
+    s = str_list[index]
+    idx = index
+    list_len = len(str_list)
+
+    if s.startswith('"') and not s.endswith('"') and index != list_len - 1:
+        # Find word with closing double quotes in str_list
+        for i in range(index + 1, list_len):  # starts from idx of next word
+            if str_list[i].endswith('"'):
+                # Last word in quoted string found
+                s += ' ' + str_list[i]
+                idx = i
+                break
+            s += ' ' + str_list[i]  # original space striped off by splitting
+
+    s = s.strip('"')
+    return (s, idx)
 
 
 if __name__ == '__main__':

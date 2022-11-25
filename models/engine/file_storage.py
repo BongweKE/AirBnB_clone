@@ -45,11 +45,14 @@ class FileStorage:
         '''
         try:
             with open(FileStorage.__file_path, 'r', encoding='utf-8') as fin:
-                from models.base_model import BaseModel
+                # from models.base_model import BaseModel
+                from classes import cls_of
                 objects = json.load(fin) # collect all saved objects
                 for key in objects:
                     # Recursively create objects from the collection
-                    obj = BaseModel(**(objects[key])) # create a BaseModel instance
+                    cls_name = key.split('.')[0]  # get class name from key
+                    cls = cls_of(cls_name)  # get class reference
+                    obj = cls(**(objects[key])) # create a BaseModel instance
                     FileStorage.__objects.update({key: obj}) # update __objects
         except FileNotFoundError:
             pass
