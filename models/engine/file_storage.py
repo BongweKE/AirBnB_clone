@@ -26,7 +26,7 @@ class FileStorage:
         of obj.to_dict()
         """
         type(self).__objects[
-            "{:s}.{:s}".format(obj.__class__.__name__, obj.id)] = str(obj)
+            "{:s}.{:s}".format(obj.__class__.__name__, obj.id)] = obj
 
     def save(self):
         """serializes __objects to the JSON file (path: __file_path)
@@ -35,12 +35,10 @@ class FileStorage:
         all_good = {}
         for obj_id in all_objs.keys():
             obj = all_objs[obj_id]
-            obj = obj.split('{')[1]
-            obj = f"{{{obj}"
-            all_good[obj_id] = json.dumps(obj)
+            all_good[obj_id] = obj.to_dict()
 
         with open(type(self).__file_path, "w") as f:
-            json.dump(type(self).__objects, f)
+            json.dump(all_good, f)
 
     def reload(self):
         """deserializes the JSON file to __objects
@@ -48,7 +46,7 @@ class FileStorage:
         otherwise, do nothing.
         If the file doesn’t exist, no exception should be raised)
         """
-
+        from models.get_class import get_class
         # file access using json:
         filename = type(self).__file_path
         # ensure file exists
@@ -60,4 +58,10 @@ class FileStorage:
 
         if isUseful:
             with open(filename, 'r') as f:
-                type(self).__objects = json.loads(f.read())
+                all_objs = json.loads(f.read())
+
+                for obj_key in all_objs.keys():
+                    ze_cls = get_class(all_objs[obj_key])
+                    type(self).__objects[obj_key] = ze_cls(
+                        **all_objs[obj_key])
+                self.save()
