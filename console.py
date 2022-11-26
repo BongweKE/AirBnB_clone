@@ -223,10 +223,12 @@ class HBNBCommand(cmd.Cmd):
             if isUseful:
                 with open(filename, 'r') as f:
                     all_objs = json.loads(f.read())
+                    temp = []
                     for obj_key in all_objs.keys():
                         obj = all_objs[obj_key]
-                        print(expected[obj['__class__']](**obj))
+                        temp.append(str(expected[obj['__class__']](**obj)))
 
+                    print(temp)
                 # Currently, Printing using this method creates duplicates
                 # therefore use the original dict of object to overwrite the
                 # json file
@@ -241,16 +243,18 @@ class HBNBCommand(cmd.Cmd):
             elif isUseful:
                 with open(filename, 'r') as f:
                     all_objs = json.loads(f.read())
+                    temp = []
                     for obj_key in all_objs.keys():
                         obj = all_objs[obj_key]
                         if obj['__class__'] == "{}".format(arg):
-                            print(expected[obj['__class__']](**obj))
+                            temp.append(str(expected[obj['__class__']](**obj)))
+                    print(temp)
+
                 # Currently, Printing using this method creates duplicates
                 # therefore use the original dict of object to overwrite the
                 # json file
                 with open(filename, 'w') as f:
                     json.dump(original_objs, f)
-
 
     def do_update(self, args):
         """Updates an instance based on the class name
