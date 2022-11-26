@@ -23,8 +23,23 @@ import json
 import os
 from models import storage
 from models.base_model import BaseModel
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
 
-expected = ["BaseModel"]
+expected = {
+    "BaseModel":BaseModel,
+    "User":User,
+    "State":State,
+    "City":City,
+    "Amenity":Amenity,
+    "Place":Place,
+    "Review":Review
+}
+
 
 class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
@@ -58,8 +73,8 @@ class HBNBCommand(cmd.Cmd):
         ** class doesn't exist **
         """
 
-        if arg == "BaseModel":
-            my_model = BaseModel()
+        if arg in expected:
+            my_model = expected[arg]()
             my_model.save()
             print(my_model.id)
             storage.save()
@@ -190,6 +205,7 @@ class HBNBCommand(cmd.Cmd):
         """
         # Temporary Fix for increasing number of objects in json file
         # save initial objs then write them back
+        storage.reload()
         original_objs = storage.all()
         original_objs = original_objs.copy()
 
@@ -209,7 +225,8 @@ class HBNBCommand(cmd.Cmd):
                     all_objs = json.loads(f.read())
                     for obj_key in all_objs.keys():
                         obj = all_objs[obj_key]
-                        print(BaseModel(**obj))
+                        print(expected[obj['__class__']](**obj))
+
                 # Currently, Printing using this method creates duplicates
                 # therefore use the original dict of object to overwrite the
                 # json file
@@ -227,7 +244,7 @@ class HBNBCommand(cmd.Cmd):
                     for obj_key in all_objs.keys():
                         obj = all_objs[obj_key]
                         if obj['__class__'] == "{}".format(arg):
-                            print(BaseModel(**obj))
+                            print(expected[obj['__class__']](**obj))
                 # Currently, Printing using this method creates duplicates
                 # therefore use the original dict of object to overwrite the
                 # json file
