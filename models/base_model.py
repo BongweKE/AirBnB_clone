@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
+Module For BaseModel Class whoch will be inherited by others
 """
 import uuid
 import datetime
 from models import storage
 
-class BaseModel:
-    """
 
-    """
+class BaseModel:
+    """BaseModel class is the base for other classes in hbnb"""
     def __init__(self, *args, **kwargs):
         """Initialization of BaseModel instance
         """

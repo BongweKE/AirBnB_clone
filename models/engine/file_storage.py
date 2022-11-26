@@ -8,6 +8,7 @@ FILE -> <class 'str'> -> JSON load -> <class 'dict'> -> <class 'BaseModel'>
 import json
 import os
 
+
 class FileStorage:
     __file_path = "file.json"
     __objects = {}
@@ -24,7 +25,8 @@ class FileStorage:
         Assumption is that the value to go with the key will be result
         of obj.to_dict()
         """
-        type(self).__objects["{:s}.{:s}".format(obj.__class__.__name__, obj.id)] = obj.to_dict()
+        type(self).__objects[
+            "{:s}.{:s}".format(obj.__class__.__name__, obj.id)] = obj.to_dict()
 
     def save(self):
         """serializes __objects to the JSON file (path: __file_path)

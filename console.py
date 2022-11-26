@@ -5,7 +5,8 @@ You must use the module cmd
 Your class definition must be: class HBNBCommand(cmd.Cmd):
 Your command interpreter should implement:
 quit and EOF to exit the program
-help (this action is provided by default by cmd but you should keep it updated and documented as you work through tasks)
+help (this action is provided by default by
+cmd but you should keep it updated and documented as you work through tasks)
 a custom prompt: (hbnb)
 an empty line + ENTER shouldn’t execute anything
 ***Your code should not be executed when imported
@@ -31,13 +32,13 @@ from models.place import Place
 from models.review import Review
 
 expected = {
-    "BaseModel":BaseModel,
-    "User":User,
-    "State":State,
-    "City":City,
-    "Amenity":Amenity,
-    "Place":Place,
-    "Review":Review
+    "BaseModel": BaseModel,
+    "User": User,
+    "State": State,
+    "City": City,
+    "Amenity": Amenity,
+    "Place": Place,
+    "Review": Review
 }
 
 
@@ -48,6 +49,7 @@ class HBNBCommand(cmd.Cmd):
         """Exit the console using quit command
         (hbnb) quit"""
         return True
+
     def do_EOF(self, arg):
         """Exit console using Ctrl+d
         (hbnb) Ctrl+d"""
@@ -131,7 +133,6 @@ class HBNBCommand(cmd.Cmd):
                 except KeyError:
                     print("** no instance found **")
 
-
     def do_destroy(self, args):
         """Deletes an instance based on the
         class name and id (save the change into the JSON file).
@@ -173,8 +174,10 @@ class HBNBCommand(cmd.Cmd):
                     my = all_objs["{}.{}".format(
                         args[0], args[1])]
                     del all_objs["{}.{}".format(args[0], args[1])]
-                    # should the file name be a dynamic variable from __file_path?
-                    # to change back to dynamoc mode search for all open() calls
+                    # should the file name be a dynamic
+                    # variable from __file_path?
+                    # to change back to dynamoc mode
+                    # search for all open() calls
                     with open("file.json", 'w') as f:
                         json.dump(all_objs, f)
                 except KeyError:
@@ -188,11 +191,13 @@ class HBNBCommand(cmd.Cmd):
         _______________________________
 
         (hbnb) all
-        [BaseModel] (1ed39e47-8274-4ce5-a178-864247175f99) {'id': '1ed39e47.., ...)}
+        [BaseModel] (1ed39e47-8274-4ce5-a178-864247175f99)\
+        {'id': '1ed39e47.., ...)}
         ...
         ...
         (hbnb) all BaseModel
-        [BaseModel] (1ed39e47-8274-4ce5-a178-864247175f99) {'id': '1ed39e47.., ...)}
+        [BaseModel] (1ed39e47-8274-4ce5-a178-864247175f99)\
+        {'id': '1ed39e47.., ...)}
         ...
         ...
         _______________________________
@@ -321,7 +326,6 @@ class HBNBCommand(cmd.Cmd):
 
                 except KeyError:
                     print("** no instance found **")
-
 
     def emptyline(self):
         """Ensure when enter is pressed in an empty prompt
