@@ -40,7 +40,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, arg):
         """Create an instance of a model and
-        save it to the Json file then print id 
+        save it to the Json file then print id
         of created instance
         _______________________________
         Examples
@@ -63,7 +63,7 @@ class HBNBCommand(cmd.Cmd):
             my_model.save()
             print(my_model.id)
             storage.save()
-        elif arg is "":
+        elif arg == "":
             print("** class name missing **")
         else:
             print("** class doesn't exist **")
@@ -93,10 +93,10 @@ class HBNBCommand(cmd.Cmd):
         original_objs = storage.all()
         original_objs = original_objs.copy()
         file_name = "file.json"
-        if args is "":
+        if args == "":
             print("** class name missing **")
         else:
-            args = args.split(' ')
+            args = [s.strip('"') for s in args.split(' ')]
 
             if args[0] not in expected:
                 print("** class doesn't exist **")
@@ -115,7 +115,7 @@ class HBNBCommand(cmd.Cmd):
 
                 except KeyError:
                     print("** no instance found **")
-                    print(all_objs)
+
 
     def do_destroy(self, args):
         """Deletes an instance based on the
@@ -138,12 +138,12 @@ class HBNBCommand(cmd.Cmd):
         ** no instance found **
         """
 
-        if args is "":
+        if args == "":
             # There were no args only destroy command
             print("** class name missing **")
         else:
             # There were args analyze how they were used
-            args = args.split(' ')
+            args = [s.strip('"') for s in args.split(' ')]
             if args[0] not in expected:
                 # Class name given is not in the list
                 print("** class doesn't exist **")
@@ -202,13 +202,14 @@ class HBNBCommand(cmd.Cmd):
         # for it to be useful with json
         isUseful = isExists and not isEmpty
 
-        if arg is "":
+        if arg == "":
             # change back to read only once you shift back from temp fix
             if isUseful:
                 with open(filename, 'r') as f:
                     all_objs = json.loads(f.read())
-                    for obj in all_objs:
-                        print(BaseModel(obj))
+                    for obj_key in all_objs.keys():
+                        obj = all_objs[obj_key]
+                        print(BaseModel(**obj))
                 # Currently, Printing using this method creates duplicates
                 # therefore use the original dict of object to overwrite the
                 # json file
@@ -226,7 +227,7 @@ class HBNBCommand(cmd.Cmd):
                     for obj_key in all_objs.keys():
                         obj = all_objs[obj_key]
                         if obj['__class__'] == "{}".format(arg):
-                            print(BaseModel(obj))
+                            print(BaseModel(**obj))
                 # Currently, Printing using this method creates duplicates
                 # therefore use the original dict of object to overwrite the
                 # json file
@@ -237,7 +238,7 @@ class HBNBCommand(cmd.Cmd):
     def do_update(self, args):
         """Updates an instance based on the class name
         and id by adding or updating attribute
-        (save the change into the JSON file). 
+        (save the change into the JSON file).
 
         -Only one attribute can be updated at the time
         -You can assume the attribute name is valid (exists for this model)
@@ -256,7 +257,7 @@ class HBNBCommand(cmd.Cmd):
         _______________________________
         Expected Error(s)
         _______________________________
-        
+
         (hbnb) update
         ** class name missing **
 
@@ -268,18 +269,18 @@ class HBNBCommand(cmd.Cmd):
 
         (hbnb) update BaseModel FakeID
         ** no instance found **
-        
+
         (hbnb) update BaseModel RealID
         ** attribute name missing **
 
         (hbnb) update BaseModel RealID email
         ** value missing **
 
-        """                
-        if args is "":
+        """
+        if args == "":
             print("** class name missing **")
         else:
-            args = args.split(' ')
+            args = [s.strip('"') for s in args.split(' ')]
             la = len(args)
             if args[0] not in expected:
                 print("** class doesn't exist **")
@@ -295,11 +296,8 @@ class HBNBCommand(cmd.Cmd):
                         print("** value missing **")
                     else:
                         my[args[2]] = args[3]
-                        temp = my.copy()
-                        del all_objs[my['id']]
-                        storage.new(temp)
                         storage.save()
-                        
+
                 except KeyError:
                     print("** no instance found **")
 
