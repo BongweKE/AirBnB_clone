@@ -423,8 +423,17 @@ class HBNBCommand(cmd.Cmd):
             # Get type of attribute value
             attr_type = type(getattr(cls, attr_name))
         except AttributeError:
-            print("** attribute name missing **")
-            return
+            # print("** attribute name missing **")
+            try:
+                # Get the most approriate type
+                attr_cast = int(attr_val)  # just to see if an exception
+                attr_type = int  # no exception; set type
+            except (ValueError, TypeError):
+                try:
+                    attr_cast = float(attr_val)
+                    attr_type = float
+                except (ValueError, TypeError):
+                    attr_type = str
 
         try:
             # Attempt type-casting
@@ -468,21 +477,6 @@ class HBNBCommand(cmd.Cmd):
         # Run block for as many key-val pair in attrs_list
         for pair in attrs_list:
             attr_name, attr_val = dct_item_str(pair)  # get attr name and val
-            '''
-            if args_str:
-                args_list = args_str.split()
-                className = args_list[idx]
-                idx += 1
-                if len(args_list) > 1:
-                    idd = args_list[idx]
-                    idx += 1
-                if len(args_list) > 2:
-                    attr_name = args_list[idx]
-                    idx += 1
-                if len(args_list) > 3:
-                    attr_val, idx = get_quoted(args_list, idx)
-            '''
-
             if className == '':
                 print("** class name missing **")
                 return
@@ -510,24 +504,33 @@ class HBNBCommand(cmd.Cmd):
 
             if attr_name == '':
                 print("** attribute name missing **")
-                return
+                continue
             if attr_val == '':
                 print("** value missing **")
-                return
+                continue
 
             try:
                 # Get type of attribute value
                 attr_type = type(getattr(cls, attr_name))
             except AttributeError:
-                print("** attribute name missing **")
-                return
+                # print("** attribute name missing **")
+                try:
+                    # Get the most approriate type
+                    attr_cast = int(attr_val)  # just to see if an exception
+                    attr_type = int  # no exception; set type
+                except (ValueError, TypeError):
+                    try:
+                        attr_cast = float(attr_val)
+                        attr_type = float
+                    except (ValueError, TypeError):
+                        attr_type = str
 
             try:
                 # Attempt type-casting
                 attr_val = attr_type(attr_val)  # typecast to defined type
             except (ValueError, TypeError):
                 print("** value missing **")
-                return
+                continue
 
             # Update the provided attributes
             setattr(obj, attr_name, attr_val)
@@ -550,7 +553,7 @@ def dct_item_str(dct_item):
     item_list = dct_item.split(':')
     item_list = [x.strip() for x in item_list]  # strip whitespace
 
-    item_list[0] = item_list[0].strip('"')  # strip attribute name of `"` char
+    item_list[0] = item_list[0].strip('"\'')  # strip attr name of `"` char
 
     if len(item_list) > 1:
         item_list[1] = item_list[1].strip('"')  # strip attr val of `"` char
