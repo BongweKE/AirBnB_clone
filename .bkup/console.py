@@ -423,8 +423,17 @@ class HBNBCommand(cmd.Cmd):
             # Get type of attribute value
             attr_type = type(getattr(cls, attr_name))
         except AttributeError:
-            print("** attribute name missing **")
-            return
+            # print("** attribute name missing **")
+            try:
+                # Get the most approriate type
+                attr_cast = int(attr_val)  # just to see if an exception
+                attr_type = int  # no exception; set type
+            except (ValueError, TypeError):
+                try:
+                    attr_cast = float(attr_val)
+                    attr_type = float
+                except (ValueError, TypeError):
+                    attr_type = str
 
         try:
             # Attempt type-casting
@@ -442,6 +451,117 @@ class HBNBCommand(cmd.Cmd):
         print(
                 'Updates instances with attributes.\n\tUsage: '
                 'update <class name> <id> <attribute name> "<attribute val>"')
+
+    def do_update2(self, line):
+        ''' Updates an instance based on id and dictionary of attributes.'''
+        from classes import cls_of
+
+        className = ''
+        idd = ''
+        attr_name = ''
+        attr_val = ''
+        idx = 0
+
+        # Retrieve class name and id
+        clsName_id_str = line.split('{')[0]
+        clsName_id_list = clsName_id_str.split()
+        className = clsName_id_list[0]
+        if len(clsName_id_list) > 1:
+            idd = clsName_id_list[1]
+
+        # Compose attributes list of key-value pairs
+        attrs_str = line.split('{')[1].rstrip('}')
+        attrs_list = attrs_str.split(',')  # get each key-val pair
+        attrs_list = [x.strip() for x in attrs_list]  # strip whitespace
+
+        # Run block for as many key-val pair in attrs_list
+        for pair in attrs_list:
+            attr_name, attr_val = dct_item_str(pair)  # get attr name and val
+            if className == '':
+                print("** class name missing **")
+                return
+
+            try:
+                cls = cls_of(className)
+            except NameError:
+                print("** class doesn't exist **")
+                return
+
+            if idd == '':
+                print("** instance id missing **")
+                return
+
+            key = className + "." + idd
+
+            all_objs = storage.all()  # collect dict of all current objects
+
+            try:
+                obj = all_objs[key]
+            except KeyError:
+                #  No instance with id, idd
+                print("** no instance found **")
+                return
+
+            if attr_name == '':
+                print("** attribute name missing **")
+                continue
+            if attr_val == '':
+                print("** value missing **")
+                continue
+
+            try:
+                # Get type of attribute value
+                attr_type = type(getattr(cls, attr_name))
+            except AttributeError:
+                # print("** attribute name missing **")
+                try:
+                    # Get the most approriate type
+                    attr_cast = int(attr_val)  # just to see if an exception
+                    attr_type = int  # no exception; set type
+                except (ValueError, TypeError):
+                    try:
+                        attr_cast = float(attr_val)
+                        attr_type = float
+                    except (ValueError, TypeError):
+                        attr_type = str
+
+            try:
+                # Attempt type-casting
+                attr_val = attr_type(attr_val)  # typecast to defined type
+            except (ValueError, TypeError):
+                print("** value missing **")
+                continue
+
+            # Update the provided attributes
+            setattr(obj, attr_name, attr_val)
+            storage.save()
+
+    def help_update2(self):
+        ''' Help for update2 command.'''
+        print(
+                'Updates instances with attributes.\n\tUsage: '
+                '<cls>.update(<id> {<attr1>: "<val1>", <attr2>: "<val2>"}')
+
+
+def dct_item_str(dct_item):
+    ''' Returns a 2-tuple composed of the key and value of a dictionary item.
+
+    Args:
+        dct_item (str): a string in the format `key: value`
+    '''
+
+    item_list = dct_item.split(':')
+    item_list = [x.strip() for x in item_list]  # strip whitespace
+
+    item_list[0] = item_list[0].strip('"\'')  # strip attr name of `"` char
+
+    if len(item_list) > 1:
+        item_list[1] = item_list[1].strip('"')  # strip attr val of `"` char
+    else:
+        # Attribute name present, but no value
+        item_list.append('')
+
+    return item_list
 
 
 def get_quoted(str_list, index):
