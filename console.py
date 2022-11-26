@@ -162,34 +162,43 @@ class HBNBCommand(cmd.Cmd):
                 return line
 # -------------------------------------------
             case "User.update(":
-                idd, name, val = get_idNameVal(line)
-                line = f"update User {idd} {name} {val}"
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} User {idd} {name} {val}"
                 return line
             case "BaseModel.update(":
-                idd, name, val = get_idNameVal(line)
-                line = f"update BaseModel {idd} {name} {val}"
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} BaseModel {idd} {name} {val}"
                 return line
             case "Place.update(":
-                idd, name, val = get_idNameVal(line)
-                line = f"update Place {idd} {name} {val}"
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} Place {idd} {name} {val}"
                 return line
             case "State.update(":
-                idd, name, val = get_idNameVal(line)
-                line = f"update State {idd} {name} {val}"
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} State {idd} {name} {val}"
                 return line
             case "City.update(":
-                idd, name, val = get_idNameVal(line)
-                line = f"update City {idd} {name} {val}"
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} City {idd} {name} {val}"
                 return line
             case "Amenity.update(":
-                idd, name, val = get_idNameVal(line)
-                line = f"update Amenity {idd} {name} {val}"
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} Amenity {idd} {name} {val}"
                 return line
             case "Review.update(":
-                idd, name, val = get_idNameVal(line)
-                line = f"update Review {idd} {name} {val}"
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} Review {idd} {name} {val}"
                 return line
             case _:
+                if line.startswith(' '):
+                    first_word = line.split()[1]
+                else:
+                    first_word = line.split()[0]
+
+                if '(' in first_word:
+                    # `clsName.cmd()` command without any, or valid, clsName
+                    cmd = first_word.split('(')[0]
+                    return cmd  # command without class name
                 return line
 # -------------------------------------------
 
@@ -434,6 +443,123 @@ class HBNBCommand(cmd.Cmd):
                 'Updates instances with attributes.\n\tUsage: '
                 'update <class name> <id> <attribute name> "<attribute val>"')
 
+    def do_update2(self, line):
+        ''' Updates an instance based on id and dictionary of attributes.'''
+        from classes import cls_of
+
+        className = ''
+        idd = ''
+        attr_name = ''
+        attr_val = ''
+        idx = 0
+
+        # Retrieve class name and id
+        clsName_id_str = line.split('{')[0]
+        clsName_id_list = clsName_id_str.split()
+        className = clsName_id_list[0]
+        if len(clsName_id_list) > 1:
+            idd = clsName_id_list[1]
+
+        # Compose attributes list of key-value pairs
+        attrs_str = line.split('{')[1].rstrip('}')
+        attrs_list = attrs_str.split(',')  # get each key-val pair
+        attrs_list = [x.strip() for x in attrs_list]  # strip whitespace
+
+        # Run block for as many key-val pair in attrs_list
+        for pair in attrs_list:
+            attr_name, attr_val = dct_item_str(pair)  # get attr name and val
+            '''
+            if args_str:
+                args_list = args_str.split()
+                className = args_list[idx]
+                idx += 1
+                if len(args_list) > 1:
+                    idd = args_list[idx]
+                    idx += 1
+                if len(args_list) > 2:
+                    attr_name = args_list[idx]
+                    idx += 1
+                if len(args_list) > 3:
+                    attr_val, idx = get_quoted(args_list, idx)
+            '''
+
+            if className == '':
+                print("** class name missing **")
+                return
+
+            try:
+                cls = cls_of(className)
+            except NameError:
+                print("** class doesn't exist **")
+                return
+
+            if idd == '':
+                print("** instance id missing **")
+                return
+
+            key = className + "." + idd
+
+            all_objs = storage.all()  # collect dict of all current objects
+
+            try:
+                obj = all_objs[key]
+            except KeyError:
+                #  No instance with id, idd
+                print("** no instance found **")
+                return
+
+            if attr_name == '':
+                print("** attribute name missing **")
+                return
+            if attr_val == '':
+                print("** value missing **")
+                return
+
+            try:
+                # Get type of attribute value
+                attr_type = type(getattr(cls, attr_name))
+            except AttributeError:
+                print("** attribute name missing **")
+                return
+
+            try:
+                # Attempt type-casting
+                attr_val = attr_type(attr_val)  # typecast to defined type
+            except (ValueError, TypeError):
+                print("** value missing **")
+                return
+
+            # Update the provided attributes
+            setattr(obj, attr_name, attr_val)
+            storage.save()
+
+    def help_update2(self):
+        ''' Help for update2 command.'''
+        print(
+                'Updates instances with attributes.\n\tUsage: '
+                '<cls>.update(<id> {<attr1>: "<val1>", <attr2>: "<val2>"}')
+
+
+def dct_item_str(dct_item):
+    ''' Returns a 2-tuple composed of the key and value of a dictionary item.
+
+    Args:
+        dct_item (str): a string in the format `key: value`
+    '''
+
+    item_list = dct_item.split(':')
+    item_list = [x.strip() for x in item_list]  # strip whitespace
+
+    item_list[0] = item_list[0].strip('"')  # strip attribute name of `"` char
+
+    if len(item_list) > 1:
+        item_list[1] = item_list[1].strip('"')  # strip attr val of `"` char
+    else:
+        # Attribute name present, but no value
+        item_list.append('')
+
+    return item_list
+
 
 def get_quoted(str_list, index):
     ''' Returns a quoted string from str_list, starting from index idx.
@@ -479,25 +605,47 @@ def get_id(line):
     return id
 
 
-def get_idNameVal(line):
-    ''' Return a tuple containing id, attribute name, and value from the
+def get_updAttrs(line):
+    ''' Return a 4-tuple containing cmd, id, attr name, and value from the
     cmd line <class name>.update(<id>, <attribute name>, <attribute value>).
 
     Note: the three attributes in parentheses
     must be separated by a comma, optionally followed by a space character.
     '''
 
-    strpd_attr_list = ['', '', '']
-    id_left_paren = line.split('(')[1]  # attributes + left parenthesis
-    id = id_left_paren.split(')')[0]  # attrs with possible double quote chars
-    attr_list = id.split(',')  # get list of comma_separated args
+    strpd_attr_list = ['', '', '', '']
+    if '{' in line and '}' in line:
+        # A dictionary of attributes to update present
+        strpd_attr_list[0] = 'update2'  # line to be dispatched to update2 cmd
+    else:
+        # A single attribute to update
+        strpd_attr_list[0] = 'update'  # line to be dispatched to `update` cmd
+
+    attrs_left_paren = line.split('(')[1]  # attributes + left parenthesis
+    attrs = attrs_left_paren.split(')')[0]  # attrs with possible dbl quotes
+    if '{' in attrs:
+        # Get id stripped of comma, space, and double quote characters
+        id = attrs.split('{')[0].strip(', "')
+        # Get dictionary of attributes
+        attr_dct = '{' + attrs.split('{')[1]  # '{' char was removed by split
+        attr_dct = attr_dct.split('}')[0] + '}'  # ignore extra char after '}'
+        strpd_attr_list[1:3] = [id, attr_dct]
+        return strpd_attr_list
+
+    # Parse attributes for the `update` command handler
+    attr_list = attrs.split(',')  # get list of comma_separated args
     attr_list = [x.strip() for x in attr_list]  # strip whitespace
 
     for i in range(len(attr_list)):
-        if i >= len(strpd_attr_list):
+        if i >= len(strpd_attr_list) - 1:
+            # In case of more than 3 attributes in parentheses
             break
         attr = attr_list[i]
-        strpd_attr_list[i] = attr.strip('"')
+        if i == 2:
+            # Do not strip argument value string; to be parsed by `update` cmd
+            strpd_attr_list[i + 1] = attr
+        else:
+            strpd_attr_list[i + 1] = attr.strip('"')
 
     return strpd_attr_list
 

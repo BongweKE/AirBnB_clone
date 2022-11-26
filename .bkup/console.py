@@ -57,8 +57,7 @@ class HBNBCommand(cmd.Cmd):
         line_list = line.split()
         left_split = line_list[0].split('(')[0]
         pattern = left_split + '('  # pattern should look like `User.show(`
-        args_str = line.removeprefix(line_list[0])
-        
+
         match pattern:
             case "User.all(":
                 line = "all User"
@@ -132,9 +131,77 @@ class HBNBCommand(cmd.Cmd):
                 idd = get_id(line)
                 line = f"show Review {idd}"
                 return line
-            case _:
+# -------------------------------------------
+            case "User.destroy(":
+                idd = get_id(line)
+                line = f"destroy User {idd}"
+                return line
+            case "BaseModel.destroy(":
+                idd = get_id(line)
+                line = f"destroy BaseModel {idd}"
+                return line
+            case "Place.destroy(":
+                idd = get_id(line)
+                line = f"destroy Place {idd}"
+                return line
+            case "State.destroy(":
+                idd = get_id(line)
+                line = f"destroy State {idd}"
+                return line
+            case "City.destroy(":
+                idd = get_id(line)
+                line = f"destroy City {idd}"
+                return line
+            case "Amenity.destroy(":
+                idd = get_id(line)
+                line = f"destroy Amenity {idd}"
+                return line
+            case "Review.destroy(":
+                idd = get_id(line)
+                line = f"destroy Review {idd}"
                 return line
 # -------------------------------------------
+            case "User.update(":
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} User {idd} {name} {val}"
+                return line
+            case "BaseModel.update(":
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} BaseModel {idd} {name} {val}"
+                return line
+            case "Place.update(":
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} Place {idd} {name} {val}"
+                return line
+            case "State.update(":
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} State {idd} {name} {val}"
+                return line
+            case "City.update(":
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} City {idd} {name} {val}"
+                return line
+            case "Amenity.update(":
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} Amenity {idd} {name} {val}"
+                return line
+            case "Review.update(":
+                cmd, idd, name, val = get_updAttrs(line)
+                line = f"{cmd} Review {idd} {name} {val}"
+                return line
+            case _:
+                if line.startswith(' '):
+                    first_word = line.split()[1]
+                else:
+                    first_word = line.split()[0]
+
+                if '(' in first_word:
+                    # `clsName.cmd()` command without any, or valid, clsName
+                    cmd = first_word.split('(')[0]
+                    return cmd  # command without class name
+                return line
+# -------------------------------------------
+
     def do_count(self, args_str):
         ''' Count the number of instances of the specified class.'''
         count = 0
@@ -419,6 +486,51 @@ def get_id(line):
     id = id.strip('"')  # strip possible left and right double quotes
 
     return id
+
+
+def get_updAttrs(line):
+    ''' Return a 4-tuple containing cmd, id, attr name, and value from the
+    cmd line <class name>.update(<id>, <attribute name>, <attribute value>).
+
+    Note: the three attributes in parentheses
+    must be separated by a comma, optionally followed by a space character.
+    '''
+
+    strpd_attr_list = ['', '', '', '']
+    if '{' in line and '}' in line:
+        # A dictionary of attributes to update present
+        strpd_attr_list[0] = 'update2'  # line to be dispatched to update2 cmd
+    else:
+        # A single attribute to update
+        strpd_attr_list[0] = 'update'  # line to be dispatched to `update` cmd
+
+    attrs_left_paren = line.split('(')[1]  # attributes + left parenthesis
+    attrs = attrs_left_paren.split(')')[0]  # attrs with possible dbl quotes
+    if '{' in attrs:
+        # Get id stripped of comma, space, and double quote characters
+        id = attrs.split('{')[0].strip(', "')
+        # Get dictionary of attributes
+        attr_dct = '{' + attrs.split('{')[1]  # '{' char was removed by split
+        attr_dct = attr_dct.split('}')[0] + '}'  # ignore extra char after '}'
+        strpd_attr_list[1:3] = [id, attr_dct]
+        return strpd_attr_list
+
+    # Parse attributes for the `update` command handler
+    attr_list = attrs.split(',')  # get list of comma_separated args
+    attr_list = [x.strip() for x in attr_list]  # strip whitespace
+
+    for i in range(len(attr_list)):
+        if i >= len(strpd_attr_list) - 1:
+            # In case of more than 3 attributes in parentheses
+            break
+        attr = attr_list[i]
+        if i == 2:
+            # Do not strip argument value string; to be parsed by `update` cmd
+            strpd_attr_list[i + 1] = attr
+        else:
+            strpd_attr_list[i + 1] = attr.strip('"')
+
+    return strpd_attr_list
 
 
 if __name__ == '__main__':
