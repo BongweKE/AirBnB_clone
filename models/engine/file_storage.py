@@ -6,6 +6,7 @@ which will be:
 FILE -> <class 'str'> -> JSON load -> <class 'dict'> -> <class 'BaseModel'>
 """
 import json
+import os
 
 class FileStorage:
     __file_path = "file.json"
@@ -37,10 +38,16 @@ class FileStorage:
         otherwise, do nothing.
         If the file doesn’t exist, no exception should be raised)
         """
-        try:
-            with open(type(self).__file_path, 'r') as f:
+
+        # file access using json:
+        filename = type(self).__file_path
+        # ensure file exists
+        isExists = os.path.exists(filename)
+        # and is not empty
+        isEmpty = isExists and os.stat(filename).st_size == 0
+        # for it to be useful with json
+        isUseful = isExists and not isEmpty
+
+        if isUseful:
+            with open(filename, 'r') as f:
                 type(self).__objects = json.loads(f.read())
-        except FileNotFoundError:
-            pass
-        except ValueError:
-            pass

@@ -9,6 +9,14 @@ help (this action is provided by default by cmd but you should keep it updated a
 a custom prompt: (hbnb)
 an empty line + ENTER shouldn’t execute anything
 ***Your code should not be executed when imported
+
+__________________________
+ASSUMPTIONS
+__________________________
+-You can assume arguments are always in the right order
+-Each arguments are separated by a space
+-A string argument with a space must be between double quote
+-The error management starts from the first argument to the last one
 """
 import cmd
 import json
@@ -80,7 +88,11 @@ class HBNBCommand(cmd.Cmd):
         (hbnb) show BaseModel Fake-ID
         ** no instance found **
         '''
-
+        # Temporary Fix for increasing number of objects in json file
+        # save initial objs then write them back
+        original_objs = storage.all()
+        original_objs = original_objs.copy()
+        file_name = "file.json"
         if args is "":
             print("** class name missing **")
         else:
@@ -96,11 +108,14 @@ class HBNBCommand(cmd.Cmd):
                 try:
                     my = all_objs["{}.{}".format(
                         args[0], args[1])]
-                    
-                    print(BaseModel(my))
+
+                    print(BaseModel(**my))
+                    with open(file_name, 'w') as f:
+                        json.dump(original_objs, f)
+
                 except KeyError:
                     print("** no instance found **")
-
+                    print(all_objs)
 
     def do_destroy(self, args):
         """Deletes an instance based on the
@@ -183,7 +198,7 @@ class HBNBCommand(cmd.Cmd):
         # ensure file exists
         isExists = os.path.exists(filename)
         # and is not empty
-        isEmpty = isExists and os.stat("file.json").st_size == 0
+        isEmpty = isExists and os.stat(filename).st_size == 0
         # for it to be useful with json
         isUseful = isExists and not isEmpty
 
@@ -201,22 +216,94 @@ class HBNBCommand(cmd.Cmd):
                     json.dump(original_objs, f)
 
         else:
+            # user of the console supplied an argument for class to print all
+            # instances of
             if arg not in expected:
                 print("** class doesn't exist **")
-            try:
-                if isUseful:
-                    with open(filename, 'r') as f:
-                        all_objs = json.loads(f.read())
-                        for obj_key in all_objs.keys():
-                            obj = all_objs[obj_key]
-                            if obj['__class__'] == "{}".format(arg):
-                                print(BaseModel(obj))
-                    # Currently, Printing using this method creates duplicates
-                    # therefore use the original dict of object to overwrite the
-                    # json file
-                    with open(filename, 'w') as f:
-                        json.dump(original_objs, f)
-                
+            elif isUseful:
+                with open(filename, 'r') as f:
+                    all_objs = json.loads(f.read())
+                    for obj_key in all_objs.keys():
+                        obj = all_objs[obj_key]
+                        if obj['__class__'] == "{}".format(arg):
+                            print(BaseModel(obj))
+                # Currently, Printing using this method creates duplicates
+                # therefore use the original dict of object to overwrite the
+                # json file
+                with open(filename, 'w') as f:
+                    json.dump(original_objs, f)
+
+
+    def do_update(self, args):
+        """Updates an instance based on the class name
+        and id by adding or updating attribute
+        (save the change into the JSON file). 
+
+        -Only one attribute can be updated at the time
+        -You can assume the attribute name is valid (exists for this model)
+        -The attribute value must be casted to the attribute type
+
+        id, created_at and updated_at can't  be updated.
+        You can assume they won't be passed in the update command
+
+        Usage: update <class name> <id> <attribute name> "<attribute value>"
+
+        (hbnb) update BaseModel 1234-1234-1234 email "aibnb@mail.com"
+        _______________________________
+        Examples
+        _______________________________
+
+        _______________________________
+        Expected Error(s)
+        _______________________________
+        
+        (hbnb) update
+        ** class name missing **
+
+        (hbnb) update FakeClass
+        ** class doesn't exist **
+
+        (hbnb) update BaseModel
+        ** instance id missing **
+
+        (hbnb) update BaseModel FakeID
+        ** no instance found **
+        
+        (hbnb) update BaseModel RealID
+        ** attribute name missing **
+
+        (hbnb) update BaseModel RealID email
+        ** value missing **
+
+        """                
+        if args is "":
+            print("** class name missing **")
+        else:
+            args = args.split(' ')
+            la = len(args)
+            if args[0] not in expected:
+                print("** class doesn't exist **")
+            elif la == 1:
+                print("** instance id missing **")
+            else:
+                all_objs = storage.all()
+                try:
+                    my = all_objs["{}.{}".format(args[0], args[1])]
+                    if la <= 2:
+                        print("** attribute name missing **")
+                    elif la <= 3:
+                        print("** value missing **")
+                    else:
+                        my[args[2]] = args[3]
+                        temp = my.copy()
+                        del all_objs[my['id']]
+                        storage.new(temp)
+                        storage.save()
+                        
+                except KeyError:
+                    print("** no instance found **")
+
+
     def emptyline(self):
         """Ensure when enter is pressed in an empty prompt
         all it does is show another prompt"""

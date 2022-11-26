@@ -12,8 +12,10 @@ class BaseModel:
     def __init__(self, *args, **kwargs):
         """Initialization of BaseModel instance
         """
-        if len(kwargs) > 0:
+        print (len(kwargs))
+        if len(kwargs) != 0:
             # Reload a saved instance
+            print("Found")
             del kwargs['__class__']
             kwargs['created_at'] = datetime.datetime.fromisoformat(
                 kwargs['created_at'])
@@ -21,6 +23,8 @@ class BaseModel:
                 kwargs['updated_at'])
             self.__dict__.update(kwargs)
         else:
+            # print shows
+            print("Anything")
             # Create a new instance
             self.id = str(uuid.uuid4())
             self.created_at = datetime.datetime.utcnow()
