@@ -26,6 +26,7 @@ from models import storage
 from models.get_class import get_class
 from models.get_class import expected
 
+
 class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
 
