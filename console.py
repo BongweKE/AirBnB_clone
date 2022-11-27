@@ -30,6 +30,13 @@ from models.get_class import expected
 class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
 
+    args = [
+        "email", "password", "first_name", "last_name", "name",
+        "state_id", "city_id", "user_id", "description", "number_rooms",
+        "number_bathrooms", "max_guest", "price_by_night", "longitude",
+        "latitude", "amenity_ids", "place_id", "text", "BaseModel", "User",
+        "Place", "State", "City", "Amenity", "Review"]
+
     def do_quit(self, arg):
         """Exit the console using quit command
         (hbnb) quit"""
@@ -276,11 +283,30 @@ class HBNBCommand(cmd.Cmd):
                             storage.reload()
                 except KeyError:
                     print("** no instance found **")
+    # ----------------------------------------------
+    # CMD METHODS
+    # ----------------------------------------------
+
+    def precmd(self):
+        pass
 
     def emptyline(self):
         """Ensure when enter is pressed in an empty prompt
         all it does is show another prompt"""
         pass
+
+    def completedefault(self, text, line, begidx, endidx):
+        ''' Auto argument completion implementation.'''
+        completions = []
+        if not text:
+            # No prefix text to match yet
+            completions.extend(self.args)  # return full list
+        else:
+            # There is some prefix text
+            for name in self.args:
+                if name.startswith(text):
+                    completions.append(name)
+        return completions
 
 
 if __name__ == '__main__':

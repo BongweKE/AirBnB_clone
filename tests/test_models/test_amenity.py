@@ -1,46 +1,45 @@
 #!/usr/bin/env python3
 """
-MOdule for unittests on base_model.py
+MOdule for unittests on amenity.py
 """
 import uuid
 import unittest
 import datetime
-from models.base_model import BaseModel
+from models.amenity import Amenity
 
-class TestBaseModel(unittest.TestCase):
+class TestAmenity(unittest.TestCase):
     """
-    Test Individual components for The base Model
+    Test Individual components for The amenity Model
     """
     def setUp(self):
-        self.m = BaseModel()
+        self.m = Amenity()
 
     # Tests for attributes
     def test_id(self):
         """
-        Tests for id attribute of our base model
+        Tests for id attribute of our amenity model
         """
         idd = self.m.id
         self.assertNotEqual(self.m.id, None)
         self.assertIs(type(self.m.id), str)
 
-
-        # TBASE-ID: test id is a uuid4 string
+        # TAMEN-ID: test id is a uuid4 string
         self.assertIs(type(uuid.UUID(idd)), uuid.UUID)
 
     def test_created_at(self):
         ''' Test for created_at attribute.'''
-        # TBASE-CA
+        # TAMEN-CA: Confirm that created_at exists
         self.assertNotEqual(self.m.created_at, None)
 
-        # TBASE-CA: test created_at is a datetime object
+        # TAMEN-CA: test created_at is a datetime object
         self.assertIs(type(self.m.created_at), datetime.datetime)
 
     def test_updated_at(self):
         ''' Test for updated_at attribute.'''
-        # TBASE-UA: test updated_at is not None object.
+        # TAMEN-UA: test updated_at is not None object.
         self.assertNotEqual(self.m.updated_at, None)
 
-        # TBASE-UA: test updated_at is a datetime object.
+        # TAMEN-UA: test updated_at is a datetime object.
         self.assertIs(type(self.m.updated_at), datetime.datetime)
 
     # ----------------------------------
@@ -51,23 +50,23 @@ class TestBaseModel(unittest.TestCase):
         prev_updated_at = self.m.updated_at
         self.m.save()
 
-        # TBASE-SV: test updated_at was updated on save.
+        # TAMEN-SV: test updated_at was updated on save.
         self.assertNotEqual(self.m.updated_at, prev_updated_at)
 
     def test_to_dict(self):
         d = self.m.to_dict()
         expected_dct = self.m.__dict__
-        expected_dct.update(__class__="BaseModel")
+        expected_dct.update(__class__="Amenity")
 
-        # TBASE-TD: test that to_dict produces expected keys
+        # TAMEN-TD: test that to_dict produces expected keys
         self.assertEqual(expected_dct.keys(), d.keys())
 
-        # TBASE-TD: test that to_dict returns type dict
+        # TAMEN-TD: test that to_dict returns type dict
         self.assertIs(type(d), dict)
 
     def test_str(self):
         ''' Test the __str__ magic method.'''
-        # TBASE-ST: test that __str__() returns a string object
+        # TAMEN-ST: test that __str__() returns a string object
         self.assertIs(type(self.m.__str__()), str)
     # _________________________________________
     # end test for methods
