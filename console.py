@@ -306,7 +306,8 @@ class HBNBCommand(cmd.Cmd):
         using strip and split functions
         """
         try:
-            simple_cmds = ["all", "count", "show"]
+            simple_cmds = ["all", "count"]
+            adv_cmds = ["show", "destroy"]
             s = line.split('.')
             s[1], temp = s[1].split('(')
             temp = f"({temp}"
@@ -316,8 +317,8 @@ class HBNBCommand(cmd.Cmd):
 
             if s[1] in simple_cmds:
                 return f"{s[1]} {s[0]}"
-            elif s[1] == "destroy":
-                s[2].strip('"()')
+            elif s[1] in adv_cmds:
+                s[2] = s[2].strip('"()')
                 return f"{s[1]} {s[0]} {s[2]}"
             elif s[1] == "update":
                 idd, name, val = [
