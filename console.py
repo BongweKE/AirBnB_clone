@@ -23,24 +23,8 @@ import cmd
 import json
 import os
 from models import storage
-from models.base_model import BaseModel
-from models.user import User
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.place import Place
-from models.review import Review
-
-expected = {
-    "BaseModel": BaseModel,
-    "User": User,
-    "State": State,
-    "City": City,
-    "Amenity": Amenity,
-    "Place": Place,
-    "Review": Review
-}
-
+from models.get_class import get_class
+from models.get_class import expected
 
 class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
@@ -105,11 +89,7 @@ class HBNBCommand(cmd.Cmd):
         (hbnb) show BaseModel Fake-ID
         ** no instance found **
         '''
-        # Temporary Fix for increasing number of objects in json file
-        # save initial objs then write them back
-        original_objs = storage.all()
-        original_objs = original_objs.copy()
-        file_name = "file.json"
+
         if args == "":
             print("** class name missing **")
         else:
@@ -125,10 +105,7 @@ class HBNBCommand(cmd.Cmd):
                 try:
                     my = all_objs["{}.{}".format(
                         args[0], args[1])]
-
-                    print(BaseModel(**my))
-                    with open(file_name, 'w') as f:
-                        json.dump(original_objs, f)
+                    print(my)
 
                 except KeyError:
                     print("** no instance found **")
@@ -171,15 +148,9 @@ class HBNBCommand(cmd.Cmd):
                 all_objs = storage.all()
 
                 try:
-                    my = all_objs["{}.{}".format(
-                        args[0], args[1])]
                     del all_objs["{}.{}".format(args[0], args[1])]
-                    # should the file name be a dynamic
-                    # variable from __file_path?
-                    # to change back to dynamoc mode
-                    # search for all open() calls
-                    with open("file.json", 'w') as f:
-                        json.dump(all_objs, f)
+                    storage.save()
+
                 except KeyError:
                     print("** no instance found **")
 
@@ -208,58 +179,30 @@ class HBNBCommand(cmd.Cmd):
         ** class doesn't exist **
         Ex: $ all BaseModel or $ all
         """
-        # Temporary Fix for increasing number of objects in json file
-        # save initial objs then write them back
         storage.reload()
-        original_objs = storage.all()
-        original_objs = original_objs.copy()
-
-        # file access using json:
-        filename = "file.json"
-        # ensure file exists
-        isExists = os.path.exists(filename)
-        # and is not empty
-        isEmpty = isExists and os.stat(filename).st_size == 0
-        # for it to be useful with json
-        isUseful = isExists and not isEmpty
 
         if arg == "":
             # change back to read only once you shift back from temp fix
-            if isUseful:
-                with open(filename, 'r') as f:
-                    all_objs = json.loads(f.read())
-                    temp = []
-                    for obj_key in all_objs.keys():
-                        obj = all_objs[obj_key]
-                        temp.append(str(expected[obj['__class__']](**obj)))
+            all_objs = storage.all()
+            temp = []
+            for obj_key in all_objs.keys():
+                temp.append(str(all_objs[obj_key]))
 
-                    print(temp)
-                # Currently, Printing using this method creates duplicates
-                # therefore use the original dict of object to overwrite the
-                # json file
-                with open(filename, 'w') as f:
-                    json.dump(original_objs, f)
+            print(temp)
 
         else:
             # user of the console supplied an argument for class to print all
             # instances of
             if arg not in expected:
                 print("** class doesn't exist **")
-            elif isUseful:
-                with open(filename, 'r') as f:
-                    all_objs = json.loads(f.read())
-                    temp = []
-                    for obj_key in all_objs.keys():
-                        obj = all_objs[obj_key]
-                        if obj['__class__'] == "{}".format(arg):
-                            temp.append(str(expected[obj['__class__']](**obj)))
-                    print(temp)
-
-                # Currently, Printing using this method creates duplicates
-                # therefore use the original dict of object to overwrite the
-                # json file
-                with open(filename, 'w') as f:
-                    json.dump(original_objs, f)
+            else:
+                all_objs = storage.all()
+                temp = []
+                for obj_key in all_objs.keys():
+                    obj = all_objs[obj_key]
+                    if obj.__class__.__name__ == "{}".format(arg):
+                        temp.append(str(obj))
+                print(temp)
 
     def do_update(self, args):
         """Updates an instance based on the class name
@@ -315,15 +258,21 @@ class HBNBCommand(cmd.Cmd):
             else:
                 all_objs = storage.all()
                 try:
-                    my = all_objs["{}.{}".format(args[0], args[1])]
+                    my = all_objs["{}.{}".format(args[0], args[1])].to_dict()
                     if la <= 2:
                         print("** attribute name missing **")
                     elif la <= 3:
                         print("** value missing **")
                     else:
                         my[args[2]] = args[3]
-                        storage.save()
-
+                        # hot fix-ish
+                        # (had to open json file)
+                        with open("file.json", 'r') as f:
+                            all_json = json.loads(f.read())
+                        with open("file.json", 'w') as f:
+                            all_json["{}.{}".format(args[0], args[1])] = my
+                            json.dump(all_json, f)
+                            storage.reload()
                 except KeyError:
                     print("** no instance found **")
 
