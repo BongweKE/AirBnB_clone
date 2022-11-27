@@ -1,0 +1,26 @@
+# -----------------------------------------
+	match line_list[0]:
+            case "User.all(":
+                line = "all User"
+                return line
+            case "BaseModel.all(":
+                line = "all BaseModel"
+                return line
+            case "Place.all(":
+                line = "all Place"
+                return line
+            case "State.all(":
+                line = "all State"
+                return line
+            case "City.all(":
+                line = "all City"
+                return line
+            case "Amenity.all(":
+                line = "all Amenity"
+                return line
+            case "Review.all(":
+                line = "all Review"
+                return line
+            case _:
+                return line
+# ---------------------------------------------
