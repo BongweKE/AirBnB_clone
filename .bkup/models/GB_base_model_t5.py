@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
-"""
-Module For BaseModel Class whoch will be inherited by others
+#!/usr/bin/python3
+""" The BaseModel module.
 """
 import uuid
 import datetime
@@ -8,30 +7,29 @@ from models import storage
 
 
 class BaseModel:
-    """BaseModel class is the base for other classes in hbnb"""
+    """
+
+    """
     def __init__(self, *args, **kwargs):
         """Initialization of BaseModel instance
         """
 
-        if len(kwargs) != 0:
+        print("Before update block")
+        if len(kwargs) > 0:
             # Reload a saved instance
-
+            print("dict before update:", self.__dict__)
             del kwargs['__class__']
-            kwargs['created_at'] = datetime.datetime.fromisoformat(
-                kwargs['created_at'])
-            kwargs['updated_at'] = datetime.datetime.fromisoformat(
-                kwargs['updated_at'])
+            kwargs['created_at'] =\
+                datetime.datetime.fromisoformat(kwargs['created_at'])
+            kwargs['updated_at'] =\
+                datetime.datetime.fromisoformat(kwargs['updated_at'])
             self.__dict__.update(kwargs)
         else:
-            # print shows
-
             # Create a new instance
             self.id = str(uuid.uuid4())
             self.created_at = datetime.datetime.utcnow()
             self.updated_at = datetime.datetime.utcnow()
             storage.new(self)
-        # To ensure new instances are saved
-        storage.save()
 
     def __str__(self):
         """Definition of how an instance is represented to the user
@@ -47,7 +45,7 @@ class BaseModel:
         `updated_at` with the current datetime
         """
         storage.save()
-        self.updated_at = datetime.datetime.now()
+        self.updated_at = datetime.datetime.utcnow()
 
     def to_dict(self):
         '''Returns a dictionary containing all key/values of the instance'''

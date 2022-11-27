@@ -6,7 +6,6 @@ import unittest
 import datetime
 from models.base_model import BaseModel
 
-
 class TestBaseModel(unittest.TestCase):
     """
     Test Individual components for The base Model
@@ -40,6 +39,14 @@ class TestBaseModel(unittest.TestCase):
         self.assertNotEqual(self.m.updated_at, prev_updated_at)
 
     def test_to_dict(self):
+        d = self.m.to_dict()
+        expected_keys = self.__dict__.keys()
+        expexted_keys.update(__class__=self.__class__.__name__)
+        expected_attrs = list(expected_keys.keys())
+        current_keys = list(d.keys())
+        self.assertSetEqual(set(expected_keys), set(current_keys))
+        self.assertEqual(d['__class__'], expected_keys["__class"])
+        self.assertIs(type(d), dict)
 
     def test_str(self):
         self.assertIs(type(self.m.__str__), str)
