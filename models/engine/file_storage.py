@@ -1,59 +1,67 @@
-#!/usr/bin/python3
-''' Implements file storage for serialization
-and deserialozation of BaseModel instances.
-'''
+#!/usr/bin/env python3
+"""a module to handle the flow of serialization-deserialization
+which will be:
+<class 'BaseModel'> -> to_dict() -> <class 'dict'> -> JSON dump
+-> <class 'str'> -> FILE
+FILE -> <class 'str'> -> JSON load -> <class 'dict'> -> <class 'BaseModel'>
+"""
 import json
-import datetime
-
-try:
-    from models.base_model import BaseModel
-except ImportError:
-    pass
+import os
 
 
 class FileStorage:
-    ''' A class that provides the necessary file storage methods and attributes
-    '''
-
-    __file_path = "objects.json"
+    __file_path = "file.json"
     __objects = {}
 
     def all(self):
-        ''' Returns the private attribute, __objects.
-        '''
-        return FileStorage.__objects
+        """Return all instances of objects managed using the
+        FileStorage class
+        """
+        self.reload()
+        return type(self).__objects
 
     def new(self, obj):
-        ''' Adds obj to the storage dictionary.
-        '''
-        FileStorage.__objects.update(
-                {f"{obj.__class__.__name__}.{obj.id}": obj})
+        """sets in __objects the obj with key <obj class name>.id
+        Assumption is that the value to go with the key will be result
+        of obj.to_dict()
+        """
+        type(self).__objects[
+            "{:s}.{:s}".format(obj.__class__.__name__, obj.id)] = obj
 
     def save(self):
-        ''' Serializes __objects to a JSON file.
-        '''
-        with open(FileStorage.__file_path, 'w', encoding='utf-8') as fout:
-            srlzd_objs = {}  # the serialized form of __objects
-            for key in FileStorage.__objects:
-                # Convert each object in __objects to serializable forms
-                obj = FileStorage.__objects[key]  # object for each key
-                obj_dict = obj.to_dict()  # serializable form of obj
-                srlzd_objs.update({key: obj_dict})  # update with serializables
-            json.dump(srlzd_objs, fout)  # serialize __objects
+        """serializes __objects to the JSON file (path: __file_path)
+        """
+        all_objs = type(self).__objects
+        all_good = {}
+        for obj_id in all_objs.keys():
+            obj = all_objs[obj_id]
+            all_good[obj_id] = obj.to_dict()
+
+        with open(type(self).__file_path, "w") as f:
+            json.dump(all_good, f)
 
     def reload(self):
-        ''' Deserializes the JSON file into __objects dict.
-        '''
-        try:
-            with open(FileStorage.__file_path, 'r', encoding='utf-8') as fin:
-                # from models.base_model import BaseModel
-                from classes import cls_of
-                objects = json.load(fin)  # collect all saved objects
-                for key in objects:
-                    # Recursively create objects from the collection
-                    cls_name = key.split('.')[0]  # get class name from key
-                    cls = cls_of(cls_name)  # get class reference
-                    obj = cls(**(objects[key]))  # create a BaseModel instance
-                    FileStorage.__objects.update({key: obj})  # upd __objects
-        except FileNotFoundError:
-            pass
+        """deserializes the JSON file to __objects
+        (only if the JSON file (__file_path) exists
+        otherwise, do nothing.
+        If the file doesn’t exist, no exception should be raised)
+        """
+        from models.get_class import get_class
+        # file access using json:
+        filename = type(self).__file_path
+        # ensure file exists
+        isExists = os.path.exists(filename)
+        # and is not empty
+        isEmpty = isExists and os.stat(filename).st_size == 0
+        # for it to be useful with json
+        isUseful = isExists and not isEmpty
+
+        if isUseful:
+            with open(filename, 'r') as f:
+                all_objs = json.loads(f.read())
+
+                for obj_key in all_objs.keys():
+                    ze_cls = get_class(all_objs[obj_key])
+                    type(self).__objects[obj_key] = ze_cls(
+                        **all_objs[obj_key])
+                self.save()

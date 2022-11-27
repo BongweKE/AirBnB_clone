@@ -1,43 +1,298 @@
-#!/usr/bin/python3
-''' Implements a console for the project.
-'''
-# from classes import cls_of
+#!/usr/bin/env python3
+"""a program called `console.py` that contains the entry point
+of the command interpreter
+You must use the module cmd
+Your class definition must be: class HBNBCommand(cmd.Cmd):
+Your command interpreter should implement:
+quit and EOF to exit the program
+help (this action is provided by default by
+cmd but you should keep it updated and documented as you work through tasks)
+a custom prompt: (hbnb)
+an empty line + ENTER shouldn’t execute anything
+***Your code should not be executed when imported
+
+__________________________
+ASSUMPTIONS
+__________________________
+-You can assume arguments are always in the right order
+-Each arguments are separated by a space
+-A string argument with a space must be between double quote
+-The error management starts from the first argument to the last one
+"""
 import cmd
+import json
+import os
 from models import storage
-from models.base_model import BaseModel
+from models.get_class import get_class
+from models.get_class import expected
 
 
 class HBNBCommand(cmd.Cmd):
-    ''' The command interpreter class definition.
-    '''
-
     prompt = "(hbnb) "
+
     args = [
-            "email", "password", "first_name", "last_name", "name",
-            "state_id", "city_id", "user_id", "description", "number_rooms",
-            "number_bathrooms", "max_guest", "price_by_night", "longitude",
-            "latitude", "amenity_ids", "place_id", "text", "BaseModel", "User",
-            "Place", "State", "City", "Amenity", "Review"]
+        "email", "password", "first_name", "last_name", "name",
+        "state_id", "city_id", "user_id", "description", "number_rooms",
+        "number_bathrooms", "max_guest", "price_by_night", "longitude",
+        "latitude", "amenity_ids", "place_id", "text", "BaseModel", "User",
+        "Place", "State", "City", "Amenity", "Review"]
 
-    def do_quit(self, quitt):
-        ''' Quits from the interpreter. '''
+    def do_quit(self, arg):
+        """Exit the console using quit command
+        (hbnb) quit"""
         return True
 
-    def help_quit(self):
-        ''' Help for quit command. '''
-        print("Quits from the interpreter.\n\tUsage: quit")
-
-    def do_EOF(self, eof):
-        ''' Exits from the interpreter. '''
-        print()
+    def do_EOF(self, arg):
+        """Exit console using Ctrl+d
+        (hbnb) Ctrl+d"""
         return True
 
-    def help_EOF(self):
-        ''' Help for EOF command. '''
-        print("Exits from the interpreter\n\tUsage: CTRL + D")
+    def do_create(self, arg):
+        """Create an instance of a model and
+        save it to the Json file then print id
+        of created instance
+        _______________________________
+        Examples
+        _______________________________
+
+        (hbnb) create BaseModel
+        78dbc774-725e-4b86-982f-edf4e6cb186d
+        ________________________
+        Expected Errors:
+        ________________________
+
+        (hbnb) create
+        ** class name missing **
+        (hbnb) create NotListed
+        ** class doesn't exist **
+        """
+
+        if arg in expected:
+            my_model = expected[arg]()
+            my_model.save()
+            print(my_model.id)
+            storage.save()
+        elif arg == "":
+            print("** class name missing **")
+        else:
+            print("** class doesn't exist **")
+
+    def do_show(self, args):
+        '''Prints the string representation of an
+        instance based on the class name and id.
+        _______________________________
+        Examples
+        _______________________________
+
+        (hbnb) show BaseModel 1234-1234-1234
+        78dbc774-725e-4b86-982f-edf4e6cb186d
+        ________________________
+        Expected Errors:
+        ________________________
+
+        (hbnb) show Unlisted
+        ** class doesn't exist **
+        (hbnb) show BaseModel
+        ** instance id missing **
+        (hbnb) show BaseModel Fake-ID
+        ** no instance found **
+        '''
+
+        if args == "":
+            print("** class name missing **")
+        else:
+            args = [s.strip('"') for s in args.split(' ')]
+
+            if args[0] not in expected:
+                print("** class doesn't exist **")
+            elif len(args) < 2:
+                print("** instance id missing **")
+            else:
+                all_objs = storage.all()
+
+                try:
+                    my = all_objs["{}.{}".format(
+                        args[0], args[1])]
+                    print(my)
+
+                except KeyError:
+                    print("** no instance found **")
+
+    def do_destroy(self, args):
+        """Deletes an instance based on the
+        class name and id (save the change into the JSON file).
+        _______________________________
+        Examples
+        _______________________________
+
+        (hbnb) destroy BaseModel 78dbc774-725e-4b86-982f-edf4e6cb186d
+        ________________________
+        Expected Errors:
+        ________________________
+        (hbnb) destroy BaseModel
+        ** instance id missing **
+        (hbnb) destroy
+        ** class name missing **
+        (hbnb) destroy FakeClass REAL-ID/FakeID
+        ** class doesn't exist **
+        (hbnb) destroy BaseModel FakeID
+        ** no instance found **
+        """
+
+        if args == "":
+            # There were no args only destroy command
+            print("** class name missing **")
+        else:
+            # There were args analyze how they were used
+            args = [s.strip('"') for s in args.split(' ')]
+            if args[0] not in expected:
+                # Class name given is not in the list
+                print("** class doesn't exist **")
+            elif len(args) < 2:
+                # No id of instance given
+                print('** instance id missing **')
+            else:
+                # look for the instance
+                all_objs = storage.all()
+
+                try:
+                    del all_objs["{}.{}".format(args[0], args[1])]
+                    storage.save()
+
+                except KeyError:
+                    print("** no instance found **")
+
+    def do_all(self, arg):
+        """Prints all string representation of all instances
+        based or not on the class name.
+        _______________________________
+        Examples
+        _______________________________
+
+        (hbnb) all
+        [BaseModel] (1ed39e47-8274-4ce5-a178-864247175f99)\
+        {'id': '1ed39e47.., ...)}
+        ...
+        ...
+        (hbnb) all BaseModel
+        [BaseModel] (1ed39e47-8274-4ce5-a178-864247175f99)\
+        {'id': '1ed39e47.., ...)}
+        ...
+        ...
+        _______________________________
+        Expected Error(s)
+        _______________________________
+
+        (hbnb) all FakeClass
+        ** class doesn't exist **
+        Ex: $ all BaseModel or $ all
+        """
+        storage.reload()
+
+        if arg == "":
+            # change back to read only once you shift back from temp fix
+            all_objs = storage.all()
+            temp = []
+            for obj_key in all_objs.keys():
+                temp.append(str(all_objs[obj_key]))
+
+            print(temp)
+
+        else:
+            # user of the console supplied an argument for class to print all
+            # instances of
+            if arg not in expected:
+                print("** class doesn't exist **")
+            else:
+                all_objs = storage.all()
+                temp = []
+                for obj_key in all_objs.keys():
+                    obj = all_objs[obj_key]
+                    if obj.__class__.__name__ == "{}".format(arg):
+                        temp.append(str(obj))
+                print(temp)
+
+    def do_update(self, args):
+        """Updates an instance based on the class name
+        and id by adding or updating attribute
+        (save the change into the JSON file).
+
+        -Only one attribute can be updated at the time
+        -You can assume the attribute name is valid (exists for this model)
+        -The attribute value must be casted to the attribute type
+
+        id, created_at and updated_at can't  be updated.
+        You can assume they won't be passed in the update command
+
+        Usage: update <class name> <id> <attribute name> "<attribute value>"
+
+        (hbnb) update BaseModel 1234-1234-1234 email "aibnb@mail.com"
+        _______________________________
+        Examples
+        _______________________________
+
+        _______________________________
+        Expected Error(s)
+        _______________________________
+
+        (hbnb) update
+        ** class name missing **
+
+        (hbnb) update FakeClass
+        ** class doesn't exist **
+
+        (hbnb) update BaseModel
+        ** instance id missing **
+
+        (hbnb) update BaseModel FakeID
+        ** no instance found **
+
+        (hbnb) update BaseModel RealID
+        ** attribute name missing **
+
+        (hbnb) update BaseModel RealID email
+        ** value missing **
+
+        """
+        if args == "":
+            print("** class name missing **")
+        else:
+            args = [s.strip('"') for s in args.split(' ')]
+            la = len(args)
+            if args[0] not in expected:
+                print("** class doesn't exist **")
+            elif la == 1:
+                print("** instance id missing **")
+            else:
+                all_objs = storage.all()
+                try:
+                    my = all_objs["{}.{}".format(args[0], args[1])].to_dict()
+                    if la <= 2:
+                        print("** attribute name missing **")
+                    elif la <= 3:
+                        print("** value missing **")
+                    else:
+                        my[args[2]] = args[3]
+                        # hot fix-ish
+                        # (had to open json file)
+                        with open("file.json", 'r') as f:
+                            all_json = json.loads(f.read())
+                        with open("file.json", 'w') as f:
+                            all_json["{}.{}".format(args[0], args[1])] = my
+                            json.dump(all_json, f)
+                            storage.reload()
+                except KeyError:
+                    print("** no instance found **")
+    # ----------------------------------------------
+    # CMD METHODS
+    # ----------------------------------------------
+
+    def precmd(self):
+        pass
 
     def emptyline(self):
-        ''' Defines actions for an empty command. '''
+        """Ensure when enter is pressed in an empty prompt
+        all it does is show another prompt"""
         pass
 
     def completedefault(self, text, line, begidx, endidx):
@@ -52,605 +307,6 @@ class HBNBCommand(cmd.Cmd):
                 if name.startswith(text):
                     completions.append(name)
         return completions
-
-    def precmd(self, line):
-        line_list = line.split()
-        left_split = line_list[0].split('(')[0]
-        pattern = left_split + '('  # pattern should look like `User.show(`
-
-        match pattern:
-            case "User.all(":
-                line = "all User"
-                return line
-            case "BaseModel.all(":
-                line = "all BaseModel"
-                return line
-            case "Place.all(":
-                line = "all Place"
-                return line
-            case "State.all(":
-                line = "all State"
-                return line
-            case "City.all(":
-                line = "all City"
-                return line
-            case "Amenity.all(":
-                line = "all Amenity"
-                return line
-            case "Review.all(":
-                line = "all Review"
-                return line
-# ------------------------------------------
-            case "User.count(":
-                line = "count User"
-                return line
-            case "BaseModel.count(":
-                line = "count BaseModel"
-                return line
-            case "Place.count(":
-                line = "count Place"
-                return line
-            case "State.count(":
-                line = "count State"
-                return line
-            case "City.count(":
-                line = "count City"
-                return line
-            case "Amenity.count(":
-                line = "count Amenity"
-                return line
-            case "Review.count(":
-                line = "count Review"
-                return line
-# -------------------------------------------
-            case "User.show(":
-                idd = get_id(line)
-                line = f"show User {idd}"
-                return line
-            case "BaseModel.show(":
-                idd = get_id(line)
-                line = f"show BaseModel {idd}"
-                return line
-            case "Place.show(":
-                idd = get_id(line)
-                line = f"show Place {idd}"
-                return line
-            case "State.show(":
-                idd = get_id(line)
-                line = f"show State {idd}"
-                return line
-            case "City.show(":
-                idd = get_id(line)
-                line = f"show City {idd}"
-                return line
-            case "Amenity.show(":
-                idd = get_id(line)
-                line = f"show Amenity {idd}"
-                return line
-            case "Review.show(":
-                idd = get_id(line)
-                line = f"show Review {idd}"
-                return line
-# -------------------------------------------
-            case "User.destroy(":
-                idd = get_id(line)
-                line = f"destroy User {idd}"
-                return line
-            case "BaseModel.destroy(":
-                idd = get_id(line)
-                line = f"destroy BaseModel {idd}"
-                return line
-            case "Place.destroy(":
-                idd = get_id(line)
-                line = f"destroy Place {idd}"
-                return line
-            case "State.destroy(":
-                idd = get_id(line)
-                line = f"destroy State {idd}"
-                return line
-            case "City.destroy(":
-                idd = get_id(line)
-                line = f"destroy City {idd}"
-                return line
-            case "Amenity.destroy(":
-                idd = get_id(line)
-                line = f"destroy Amenity {idd}"
-                return line
-            case "Review.destroy(":
-                idd = get_id(line)
-                line = f"destroy Review {idd}"
-                return line
-# -------------------------------------------
-            case "User.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} User {idd} {name} {val}"
-                return line
-            case "BaseModel.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} BaseModel {idd} {name} {val}"
-                return line
-            case "Place.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} Place {idd} {name} {val}"
-                return line
-            case "State.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} State {idd} {name} {val}"
-                return line
-            case "City.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} City {idd} {name} {val}"
-                return line
-            case "Amenity.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} Amenity {idd} {name} {val}"
-                return line
-            case "Review.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} Review {idd} {name} {val}"
-                return line
-            case _:
-                if line.startswith(' '):
-                    first_word = line.split()[1]
-                else:
-                    first_word = line.split()[0]
-
-                if '(' in first_word:
-                    # `clsName.cmd()` command without any, or valid, clsName
-                    cmd = first_word.split('(')[0]
-                    return cmd  # command without class name
-                return line
-# -------------------------------------------
-
-    def do_count(self, args_str):
-        ''' Count the number of instances of the specified class.'''
-        count = 0
-        clsName = args_str.split()[0]  # retrieve class name from argument
-
-        for key in storage.all():
-            if key.startswith(clsName + '.'):
-                count += 1
-        print(count)
-
-    def help_count(self):
-        ''' Help for count command.'''
-        print(
-                "Count the number of instances of the specified class."
-                "\n\tUsage: <class_name>.count()")
-
-    def do_create(self, className):
-        ''' Creates a new instance of BaseModel. '''
-        from classes import cls_of
-
-        if className == '':
-            print("** class name missing **")
-            return
-
-        try:
-            cls = cls_of(className)
-            inst = cls()
-            inst.save()
-            print(inst.id)
-        except NameError:
-            print("** class doesn't exist **")
-
-    def help_create(self):
-        ''' Help for create command. '''
-        print(
-                "Creates a new instance of BaseModel."
-                "\n\tUsage: create <class_name>")
-
-    def do_show(self, className, idd=None):
-        ''' Prints the string representation of
-        an instance based on the class name and id.
-        '''
-        from classes import cls_of
-
-        if className:
-            args = className.split()
-            className = args[0]
-            if len(args) > 1:
-                idd = args[1]
-
-        if className == '':
-            print("** class name missing **")
-            return
-
-        try:
-            cls = cls_of(className)
-        except NameError:
-            print("** class doesn't exist **")
-            return
-
-        if idd is None:
-            print("** instance id missing **")
-            return
-
-        key = className + "." + idd
-
-        all_objs = storage.all()  # collect the dict of all current objects
-        try:
-            obj = all_objs[key]
-            print(obj)  # instance found
-        except KeyError:
-            #  No instance with id, idd
-            print("** no instance found **")
-
-    def help_show(self):
-        ''' Help for show command.'''
-        print(
-                "Prints the string representation ofan instance."
-                "\n\tUsage: show <className> <instance_id>")
-
-    def do_destroy(self, args_str):
-        ''' Deletes an instance based on name and id.'''
-        from classes import cls_of
-
-        className = ''
-        idd = ''
-
-        if args_str:
-            args_list = args_str.split()
-            className = args_list[0]
-            if len(args_list) > 1:
-                idd = args_list[1]
-
-        if className == '':
-            print("** class name missing **")
-            return
-
-        try:
-            cls = cls_of(className)
-        except NameError:
-            print("** class doesn't exist **")
-            return
-
-        if idd == '':
-            print("** instance id missing **")
-            return
-
-        key = className + "." + idd
-
-        all_objs = storage.all()  # collect the dict of all current objects
-
-        try:
-            del all_objs[key]
-            storage.save()
-        except KeyError:
-            #  No instance with id, idd
-            print("** no instance found **")
-
-    def help_destroy(self):
-        ''' Help for destroy command.'''
-        print(
-                "Deletes an instance from file storage."
-                "\n\tUsage: destroy <class_name> <instance_id>")
-
-    def do_all(self, args_str):
-        ''' Prints the string representation of all instances.'''
-        from classes import cls_of
-
-        className = ''
-
-        if args_str:
-            args_list = args_str.split()
-            className = args_list[0]
-
-        all_objs = storage.all()  # collect the dict of all current objects
-        obj_str_list = []
-
-        if className == '':  # print all
-            for key in all_objs:
-                # Append each object's string representation to a list
-                obj_str_list.append(str(all_objs[key]))
-            print(obj_str_list)
-            return
-
-        # A potential class name was specified
-        try:
-            cls = cls_of(className)
-            for key in all_objs:
-                # Append each object's string representation to a list
-                if key.startswith(className + '.'):
-                    obj_str_list.append(str(all_objs[key]))
-            print(obj_str_list)
-        except NameError:
-            print("** class doesn't exist **")
-            return
-
-    def help_all(self):
-        ''' Help for all command.'''
-        print(
-                "Prints the string representation of all instances."
-                "\n\tUsage: all [<class_name>]")
-
-    def do_update(self, args_str):
-        ''' Updates an instance based on name and id.'''
-        from classes import cls_of
-
-        className = ''
-        idd = ''
-        attr_name = ''
-        attr_val = ''
-        idx = 0
-
-        if args_str:
-            args_list = args_str.split()
-            className = args_list[idx]
-            idx += 1
-            if len(args_list) > 1:
-                idd = args_list[idx]
-                idx += 1
-            if len(args_list) > 2:
-                attr_name = args_list[idx]
-                idx += 1
-            if len(args_list) > 3:
-                attr_val, idx = get_quoted(args_list, idx)
-
-        if className == '':
-            print("** class name missing **")
-            return
-
-        try:
-            cls = cls_of(className)
-        except NameError:
-            print("** class doesn't exist **")
-            return
-
-        if idd == '':
-            print("** instance id missing **")
-            return
-
-        key = className + "." + idd
-
-        all_objs = storage.all()  # collect the dict of all current objects
-
-        try:
-            obj = all_objs[key]
-        except KeyError:
-            #  No instance with id, idd
-            print("** no instance found **")
-            return
-
-        if attr_name == '':
-            print("** attribute name missing **")
-            return
-        if attr_val == '':
-            print("** value missing **")
-            return
-
-        try:
-            # Get type of attribute value
-            attr_type = type(getattr(cls, attr_name))
-        except AttributeError:
-            # print("** attribute name missing **")
-            try:
-                # Get the most approriate type
-                attr_cast = int(attr_val)  # just to see if an exception
-                attr_type = int  # no exception; set type
-            except (ValueError, TypeError):
-                try:
-                    attr_cast = float(attr_val)
-                    attr_type = float
-                except (ValueError, TypeError):
-                    attr_type = str
-
-        try:
-            # Attempt type-casting
-            attr_val = attr_type(attr_val)  # typecast to class-defined type
-        except (ValueError, TypeError):
-            print("** value missing **")
-            return
-
-        # Update the provided attributes
-        setattr(obj, attr_name, attr_val)
-        storage.save()
-
-    def help_update(self):
-        ''' Help for update command.'''
-        print(
-                'Updates instances with attributes.\n\tUsage: '
-                'update <class name> <id> <attribute name> "<attribute val>"')
-
-    def do_update2(self, line):
-        ''' Updates an instance based on id and dictionary of attributes.'''
-        from classes import cls_of
-
-        className = ''
-        idd = ''
-        attr_name = ''
-        attr_val = ''
-        idx = 0
-
-        # Retrieve class name and id
-        clsName_id_str = line.split('{')[0]
-        clsName_id_list = clsName_id_str.split()
-        className = clsName_id_list[0]
-        if len(clsName_id_list) > 1:
-            idd = clsName_id_list[1]
-
-        # Compose attributes list of key-value pairs
-        attrs_str = line.split('{')[1].rstrip('}')
-        attrs_list = attrs_str.split(',')  # get each key-val pair
-        attrs_list = [x.strip() for x in attrs_list]  # strip whitespace
-
-        # Run block for as many key-val pair in attrs_list
-        for pair in attrs_list:
-            attr_name, attr_val = dct_item_str(pair)  # get attr name and val
-            if className == '':
-                print("** class name missing **")
-                return
-
-            try:
-                cls = cls_of(className)
-            except NameError:
-                print("** class doesn't exist **")
-                return
-
-            if idd == '':
-                print("** instance id missing **")
-                return
-
-            key = className + "." + idd
-
-            all_objs = storage.all()  # collect dict of all current objects
-
-            try:
-                obj = all_objs[key]
-            except KeyError:
-                #  No instance with id, idd
-                print("** no instance found **")
-                return
-
-            if attr_name == '':
-                print("** attribute name missing **")
-                continue
-            if attr_val == '':
-                print("** value missing **")
-                continue
-
-            try:
-                # Get type of attribute value
-                attr_type = type(getattr(cls, attr_name))
-            except AttributeError:
-                # print("** attribute name missing **")
-                try:
-                    # Get the most approriate type
-                    attr_cast = int(attr_val)  # just to see if an exception
-                    attr_type = int  # no exception; set type
-                except (ValueError, TypeError):
-                    try:
-                        attr_cast = float(attr_val)
-                        attr_type = float
-                    except (ValueError, TypeError):
-                        attr_type = str
-
-            try:
-                # Attempt type-casting
-                attr_val = attr_type(attr_val)  # typecast to defined type
-            except (ValueError, TypeError):
-                print("** value missing **")
-                continue
-
-            # Update the provided attributes
-            setattr(obj, attr_name, attr_val)
-            storage.save()
-
-    def help_update2(self):
-        ''' Help for update2 command.'''
-        print(
-                'Updates instances with attributes.\n\tUsage: '
-                '<cls>.update(<id> {<attr1>: "<val1>", <attr2>: "<val2>"}')
-
-
-def dct_item_str(dct_item):
-    ''' Returns a 2-tuple composed of the key and value of a dictionary item.
-
-    Args:
-        dct_item (str): a string in the format `key: value`
-    '''
-
-    item_list = dct_item.split(':')
-    item_list = [x.strip() for x in item_list]  # strip whitespace
-
-    item_list[0] = item_list[0].strip('"\'')  # strip attr name of `"` char
-
-    if len(item_list) > 1:
-        item_list[1] = item_list[1].strip('"')  # strip attr val of `"` char
-    else:
-        # Attribute name present, but no value
-        item_list.append('')
-
-    return item_list
-
-
-def get_quoted(str_list, index):
-    ''' Returns a quoted string from str_list, starting from index idx.
-
-    Args:
-        str_list (list): list of strings
-        idx (int): the start index of the potentially quoted string in list
-
-    Return:
-        2-tuple: where the first item is the
-        potentially quoted string, stripped of the double quotes,
-        and the second item is end index of the string in the list.
-
-    Note: there has to be a word in str_list that ends with the
-    double quote character, otherwise the result is undefined.
-    '''
-
-    s = str_list[index]
-    idx = index
-    list_len = len(str_list)
-
-    if s.startswith('"') and not s.endswith('"') and index != list_len - 1:
-        # Find word with closing double quotes in str_list
-        for i in range(index + 1, list_len):  # starts from idx of next word
-            if str_list[i].endswith('"'):
-                # Last word in quoted string found
-                s += ' ' + str_list[i]
-                idx = i
-                break
-            s += ' ' + str_list[i]  # original space striped off by splitting
-
-    s = s.strip('"')
-    return (s, idx)
-
-
-def get_id(line):
-    ''' Returns the id string from the cmd line `<cls_name>.show(<id>)`
-    '''
-    id_left_paren = line.split('(')[1]  # id + left parenthesis
-    id = id_left_paren.split(')')[0]  # id with possible double quote char
-    id = id.strip('"')  # strip possible left and right double quotes
-
-    return id
-
-
-def get_updAttrs(line):
-    ''' Return a 4-tuple containing cmd, id, attr name, and value from the
-    cmd line <class name>.update(<id>, <attribute name>, <attribute value>).
-
-    Note: the three attributes in parentheses
-    must be separated by a comma, optionally followed by a space character.
-    '''
-
-    strpd_attr_list = ['', '', '', '']
-    if '{' in line and '}' in line:
-        # A dictionary of attributes to update present
-        strpd_attr_list[0] = 'update2'  # line to be dispatched to update2 cmd
-    else:
-        # A single attribute to update
-        strpd_attr_list[0] = 'update'  # line to be dispatched to `update` cmd
-
-    attrs_left_paren = line.split('(')[1]  # attributes + left parenthesis
-    attrs = attrs_left_paren.split(')')[0]  # attrs with possible dbl quotes
-    if '{' in attrs:
-        # Get id stripped of comma, space, and double quote characters
-        id = attrs.split('{')[0].strip(', "')
-        # Get dictionary of attributes
-        attr_dct = '{' + attrs.split('{')[1]  # '{' char was removed by split
-        attr_dct = attr_dct.split('}')[0] + '}'  # ignore extra char after '}'
-        strpd_attr_list[1:3] = [id, attr_dct]
-        return strpd_attr_list
-
-    # Parse attributes for the `update` command handler
-    attr_list = attrs.split(',')  # get list of comma_separated args
-    attr_list = [x.strip() for x in attr_list]  # strip whitespace
-
-    for i in range(len(attr_list)):
-        if i >= len(strpd_attr_list) - 1:
-            # In case of more than 3 attributes in parentheses
-            break
-        attr = attr_list[i]
-        if i == 2:
-            # Do not strip argument value string; to be parsed by `update` cmd
-            strpd_attr_list[i + 1] = attr
-        else:
-            strpd_attr_list[i + 1] = attr.strip('"')
-
-    return strpd_attr_list
 
 
 if __name__ == '__main__':

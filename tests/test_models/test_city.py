@@ -14,25 +14,7 @@ class TestCity(unittest.TestCase):
     def setUp(self):
         self.m = City()
 
-    # ++++++++++++++++++++++++++
-    # start tests for attributes
-    # ++++++++++++++++++++++++++
-
-    def test_name(self):
-        ''' Tests for name attribute.'''
-
-        C = City()
-
-        # TCITY-NM: test if name is a string object
-        self.assertIs(type(C.name), str)
-
-    def test_state_id(self):
-        ''' Tests for state_id attribute.'''
-        C = City()
-
-        # TCITY-SI: test if state_id is a string
-        self.assertIs(type(C.state_id), str)
-
+    # Tests for attributes
     def test_id(self):
         """
         Tests for id attribute of our city model

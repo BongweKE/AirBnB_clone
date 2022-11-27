@@ -14,17 +14,7 @@ class TestAmenity(unittest.TestCase):
     def setUp(self):
         self.m = Amenity()
 
-    # ++++++++++++++++++++++++++
-    # start tests for attributes
-    # ++++++++++++++++++++++++++
-
-    def test_name(self):
-        ''' Tests for name attribute.'''
-
-        A = Amenity()
-        # TAMEN-NM: test if name is a string object
-        self.assertIs(type(A.name), str)
-
+    # Tests for attributes
     def test_id(self):
         """
         Tests for id attribute of our amenity model

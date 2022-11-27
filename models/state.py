@@ -9,5 +9,4 @@ from models.base_model import BaseModel
 class State(BaseModel):
     """ Implementation of the State class.
     """
-
     name = ''
