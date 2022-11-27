@@ -283,12 +283,51 @@ class HBNBCommand(cmd.Cmd):
                             storage.reload()
                 except KeyError:
                     print("** no instance found **")
+
+    def do_count(self, clsName):
+        ''' Count the number of instances of the specified class.
+        Usage: <class_name>.count()'''
+        count = 0
+
+        for key in storage.all().keys():
+            if key.split('.')[0] == clsName:
+                count += 1
+        print(count)
+
     # ----------------------------------------------
     # CMD METHODS
     # ----------------------------------------------
 
-    def precmd(self):
-        pass
+    def precmd(self, line):
+        """A function to handle expected console cmds
+        which don't need to have a do_cmd fxn
+        since they might cause redundancy.
+        Solution is through str->array->str conversions
+        using strip and split functions
+        """
+        try:
+            simple_cmds = ["all", "count", "show"]
+            s = line.split('.')
+            s[1], temp = s[1].split('(')
+            temp = f"({temp}"
+            s.append(temp)
+            # given User.all()
+            # s = ['User', 'all', '()']
+
+            if s[1] in simple_cmds:
+                return f"{s[1]} {s[0]}"
+            elif s[1] == "destroy":
+                s[2].strip('"()')
+                return f"{s[1]} {s[0]} {s[2]}"
+            elif s[1] == "update":
+                idd, name, val = [
+                    i.strip('"') for i in s[2].strip("()").split(", ")]
+                return f"{s[1]} {s[0]} {idd} {name} {val}"
+            else:
+                return line
+        except IndexError:
+            # to avoid EOF problems
+            return line
 
     def emptyline(self):
         """Ensure when enter is pressed in an empty prompt
@@ -307,6 +346,10 @@ class HBNBCommand(cmd.Cmd):
                 if name.startswith(text):
                     completions.append(name)
         return completions
+
+    # -----------------------------------------------------------
+    # SUPPORTING METHODS
+    # -----------------------------------------------------------
 
 
 if __name__ == '__main__':

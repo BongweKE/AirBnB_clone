@@ -7,6 +7,7 @@ import unittest
 import datetime
 from models.base_model import BaseModel
 
+
 class TestBaseModel(unittest.TestCase):
     """
     Test Individual components for The base Model
@@ -22,7 +23,6 @@ class TestBaseModel(unittest.TestCase):
         idd = self.m.id
         self.assertNotEqual(self.m.id, None)
         self.assertIs(type(self.m.id), str)
-
 
         # TBASE-ID: test id is a uuid4 string
         self.assertIs(type(uuid.UUID(idd)), uuid.UUID)

@@ -7,6 +7,7 @@ import unittest
 import datetime
 from models.city import City
 
+
 class TestCity(unittest.TestCase):
     """
     Test Individual components for The city Model

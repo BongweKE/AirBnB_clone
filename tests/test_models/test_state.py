@@ -7,6 +7,7 @@ import unittest
 import datetime
 from models.state import State
 
+
 class TestState(unittest.TestCase):
     """
     Test Individual components for The state Model
@@ -22,7 +23,6 @@ class TestState(unittest.TestCase):
         idd = self.m.id
         self.assertNotEqual(self.m.id, None)
         self.assertIs(type(self.m.id), str)
-
 
         # TSTAT-ID: test id is a uuid4 string
         self.assertIs(type(uuid.UUID(idd)), uuid.UUID)

@@ -7,6 +7,7 @@ import unittest
 import datetime
 from models.amenity import Amenity
 
+
 class TestAmenity(unittest.TestCase):
     """
     Test Individual components for The amenity Model
