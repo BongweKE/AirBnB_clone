@@ -14,20 +14,19 @@ def cls_of(cls_name):
     from models.amenity import Amenity
     from models.review import Review
 
-    match cls_name:
-        case "BaseModel":
-            return BaseModel
-        case "User":
-            return User
-        case "State":
-            return State
-        case "Place":
-            return Place
-        case "City":
-            return City
-        case "Amenity":
-            return Amenity
-        case "Review":
-            return Review
-        case _:
-            raise NameError
+    if cls_name == "BaseModel":
+        return BaseModel
+    elif cls_name == "User":
+        return User
+    elif cls_name == "State":
+        return State
+    elif cls_name == "Place":
+        return Place
+    elif cls_name == "City":
+        return City
+    elif cls_name == "Amenity":
+        return Amenity
+    elif cls_name == "Review":
+        return Review
+    else:
+        raise NameError
