@@ -55,6 +55,9 @@ class HBNBCommand(cmd.Cmd):
 
     def precmd(self, line):
         line_list = line.split()
+        if len(line_list) == 0:
+            # Empty line
+            return ''
         left_split = line_list[0].split('(')[0]
         pattern = left_split + '('  # pattern should look like `User.show(`
 
