@@ -58,148 +58,147 @@ class HBNBCommand(cmd.Cmd):
         left_split = line_list[0].split('(')[0]
         pattern = left_split + '('  # pattern should look like `User.show(`
 
-        match pattern:
-            case "User.all(":
-                line = "all User"
-                return line
-            case "BaseModel.all(":
-                line = "all BaseModel"
-                return line
-            case "Place.all(":
-                line = "all Place"
-                return line
-            case "State.all(":
-                line = "all State"
-                return line
-            case "City.all(":
-                line = "all City"
-                return line
-            case "Amenity.all(":
-                line = "all Amenity"
-                return line
-            case "Review.all(":
-                line = "all Review"
-                return line
+        if pattern == "User.all(":
+            line = "all User"
+            return line
+        elif pattern == "BaseModel.all(":
+            line = "all BaseModel"
+            return line
+        elif pattern == "Place.all(":
+            line = "all Place"
+            return line
+        elif pattern == "State.all(":
+            line = "all State"
+            return line
+        elif pattern == "City.all(":
+            line = "all City"
+            return line
+        elif pattern == "Amenity.all(":
+            line = "all Amenity"
+            return line
+        elif pattern == "Review.all(":
+            line = "all Review"
+            return line
 # ------------------------------------------
-            case "User.count(":
-                line = "count User"
-                return line
-            case "BaseModel.count(":
-                line = "count BaseModel"
-                return line
-            case "Place.count(":
-                line = "count Place"
-                return line
-            case "State.count(":
-                line = "count State"
-                return line
-            case "City.count(":
-                line = "count City"
-                return line
-            case "Amenity.count(":
-                line = "count Amenity"
-                return line
-            case "Review.count(":
-                line = "count Review"
-                return line
+        elif pattern == "User.count(":
+            line = "count User"
+            return line
+        elif pattern == "BaseModel.count(":
+            line = "count BaseModel"
+            return line
+        elif pattern == "Place.count(":
+            line = "count Place"
+            return line
+        elif pattern == "State.count(":
+            line = "count State"
+            return line
+        elif pattern == "City.count(":
+            line = "count City"
+            return line
+        elif pattern == "Amenity.count(":
+            line = "count Amenity"
+            return line
+        elif pattern == "Review.count(":
+            line = "count Review"
+            return line
 # -------------------------------------------
-            case "User.show(":
-                idd = get_id(line)
-                line = f"show User {idd}"
-                return line
-            case "BaseModel.show(":
-                idd = get_id(line)
-                line = f"show BaseModel {idd}"
-                return line
-            case "Place.show(":
-                idd = get_id(line)
-                line = f"show Place {idd}"
-                return line
-            case "State.show(":
-                idd = get_id(line)
-                line = f"show State {idd}"
-                return line
-            case "City.show(":
-                idd = get_id(line)
-                line = f"show City {idd}"
-                return line
-            case "Amenity.show(":
-                idd = get_id(line)
-                line = f"show Amenity {idd}"
-                return line
-            case "Review.show(":
-                idd = get_id(line)
-                line = f"show Review {idd}"
-                return line
+        elif pattern == "User.show(":
+            idd = get_id(line)
+            line = f"show User {idd}"
+            return line
+        elif pattern == "BaseModel.show(":
+            idd = get_id(line)
+            line = f"show BaseModel {idd}"
+            return line
+        elif pattern == "Place.show(":
+            idd = get_id(line)
+            line = f"show Place {idd}"
+            return line
+        elif pattern == "State.show(":
+            idd = get_id(line)
+            line = f"show State {idd}"
+            return line
+        elif pattern == "City.show(":
+            idd = get_id(line)
+            line = f"show City {idd}"
+            return line
+        elif pattern == "Amenity.show(":
+            idd = get_id(line)
+            line = f"show Amenity {idd}"
+            return line
+        elif pattern == "Review.show(":
+            idd = get_id(line)
+            line = f"show Review {idd}"
+            return line
 # -------------------------------------------
-            case "User.destroy(":
-                idd = get_id(line)
-                line = f"destroy User {idd}"
-                return line
-            case "BaseModel.destroy(":
-                idd = get_id(line)
-                line = f"destroy BaseModel {idd}"
-                return line
-            case "Place.destroy(":
-                idd = get_id(line)
-                line = f"destroy Place {idd}"
-                return line
-            case "State.destroy(":
-                idd = get_id(line)
-                line = f"destroy State {idd}"
-                return line
-            case "City.destroy(":
-                idd = get_id(line)
-                line = f"destroy City {idd}"
-                return line
-            case "Amenity.destroy(":
-                idd = get_id(line)
-                line = f"destroy Amenity {idd}"
-                return line
-            case "Review.destroy(":
-                idd = get_id(line)
-                line = f"destroy Review {idd}"
-                return line
+        elif pattern == "User.destroy(":
+            idd = get_id(line)
+            line = f"destroy User {idd}"
+            return line
+        elif pattern == "BaseModel.destroy(":
+            idd = get_id(line)
+            line = f"destroy BaseModel {idd}"
+            return line
+        elif pattern == "Place.destroy(":
+            idd = get_id(line)
+            line = f"destroy Place {idd}"
+            return line
+        elif pattern == "State.destroy(":
+            idd = get_id(line)
+            line = f"destroy State {idd}"
+            return line
+        elif pattern == "City.destroy(":
+            idd = get_id(line)
+            line = f"destroy City {idd}"
+            return line
+        elif pattern == "Amenity.destroy(":
+            idd = get_id(line)
+            line = f"destroy Amenity {idd}"
+            return line
+        elif pattern == "Review.destroy(":
+            idd = get_id(line)
+            line = f"destroy Review {idd}"
+            return line
 # -------------------------------------------
-            case "User.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} User {idd} {name} {val}"
-                return line
-            case "BaseModel.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} BaseModel {idd} {name} {val}"
-                return line
-            case "Place.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} Place {idd} {name} {val}"
-                return line
-            case "State.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} State {idd} {name} {val}"
-                return line
-            case "City.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} City {idd} {name} {val}"
-                return line
-            case "Amenity.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} Amenity {idd} {name} {val}"
-                return line
-            case "Review.update(":
-                cmd, idd, name, val = get_updAttrs(line)
-                line = f"{cmd} Review {idd} {name} {val}"
-                return line
-            case _:
-                if line.startswith(' '):
-                    first_word = line.split()[1]
-                else:
-                    first_word = line.split()[0]
+        elif pattern == "User.update(":
+            cmd, idd, name, val = get_updAttrs(line)
+            line = f"{cmd} User {idd} {name} {val}"
+            return line
+        elif pattern == "BaseModel.update(":
+            cmd, idd, name, val = get_updAttrs(line)
+            line = f"{cmd} BaseModel {idd} {name} {val}"
+            return line
+        elif pattern == "Place.update(":
+            cmd, idd, name, val = get_updAttrs(line)
+            line = f"{cmd} Place {idd} {name} {val}"
+            return line
+        elif pattern == "State.update(":
+            cmd, idd, name, val = get_updAttrs(line)
+            line = f"{cmd} State {idd} {name} {val}"
+            return line
+        elif pattern == "City.update(":
+            cmd, idd, name, val = get_updAttrs(line)
+            line = f"{cmd} City {idd} {name} {val}"
+            return line
+        elif pattern == "Amenity.update(":
+            cmd, idd, name, val = get_updAttrs(line)
+            line = f"{cmd} Amenity {idd} {name} {val}"
+            return line
+        elif pattern == "Review.update(":
+            cmd, idd, name, val = get_updAttrs(line)
+            line = f"{cmd} Review {idd} {name} {val}"
+            return line
+        else:
+            if line.startswith(' '):
+                first_word = line.split()[1]
+            else:
+                first_word = line.split()[0]
 
-                if '(' in first_word:
-                    # `clsName.cmd()` command without any, or valid, clsName
-                    cmd = first_word.split('(')[0]
-                    return cmd  # command without class name
-                return line
+            if '(' in first_word:
+                # `clsName.cmd()` command without any, or valid, clsName
+                cmd = first_word.split('(')[0]
+                return cmd  # command without class name
+            return line
 # -------------------------------------------
 
     def do_count(self, args_str):
