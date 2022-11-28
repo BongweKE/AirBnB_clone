@@ -9,6 +9,7 @@ from models.place import Place
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from models.engine.file_storage import FileStorage
 import unittest
 
 
@@ -68,6 +69,12 @@ class TestFileStorage(unittest.TestCase):
 
         # TFILE-SV: test that save() returns None
         self.assertIs(storage.save(), None)
+
+    def test_reload(self):
+        ''' Test the reload() method.'''
+
+        # TFILE-RL: test that reload() returns None
+        self.assertIs(storage.reload(), None)
     # ------------------------
     # end of tests for methods
     # ------------------------
@@ -80,7 +87,13 @@ class TestFileStorage(unittest.TestCase):
         ''' Tests the __objects attribute.'''
 
         # TFILE-OB: test that type of __object is dict
-        self.assertIs(type(storage.all()), dict)
+        self.assertIs(type(FileStorage._FileStorage__objects), dict)
+
+    def test_file_path(self):
+        ''' Tests the __file_path attribute.'''
+
+        # TFILE-FP: test that the __file_path attribute is a string
+        self.assertIs(type(FileStorage._FileStorage__file_path), str)
     # +++++++++++++++++++++++
     # end test for attributes
     # +++++++++++++++++++++++
