@@ -1,2 +1,0 @@
-- Possible ways to reference file name dynamically
-- self in User, etc __init__ : why are they using public class attributes?
