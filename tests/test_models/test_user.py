@@ -15,6 +15,31 @@ class TestUser(unittest.TestCase):
         self.m = User()
 
     # Tests for attributes
+
+    def test_email(self):
+        ''' Tests for email attribute.'''
+
+        # TUSER-EM: test if email is a string object
+        self.assertIs(type(User.email), str)
+
+    def test_password(self):
+        ''' Tests for password attribute.'''
+
+        # TUSER-PW: test if password is a string object
+        self.assertIs(type(User.password), str)
+
+    def test_first_name(self):
+        ''' Tests for first_name attribute.'''
+
+        # TUSER-FN: test if first_name is a string object
+        self.assertIs(type(User.first_name), str)
+
+    def test_last_name(self):
+        ''' Tests for last_name attribute.'''
+
+        # TUSER-LN: test if last_name is a string object
+        self.assertIs(type(User.last_name), str)
+
     def test_id(self):
         """
         Tests for id attribute of our User model

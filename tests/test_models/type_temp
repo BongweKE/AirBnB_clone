@@ -1,0 +1,5 @@
+    def test_name(self):
+        ''' Tests for name attribute.'''
+
+        # TAMEN-NM: test if name is a string object
+        self.assertIs(type(U.name), str)
