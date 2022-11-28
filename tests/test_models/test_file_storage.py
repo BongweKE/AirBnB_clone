@@ -65,6 +65,9 @@ class TestFileStorage(unittest.TestCase):
 
         # TFILE-SV: test that current __objects is actually saved to file.
         self.assertNotEqual(old_storage, new_storage)
+
+        # TFILE-SV: test that save() returns None
+        self.assertIs(storage.save(), None)
     # ------------------------
     # end of tests for methods
     # ------------------------

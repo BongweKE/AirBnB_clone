@@ -69,6 +69,9 @@ class TestBaseModel(unittest.TestCase):
         ''' Test the __str__ magic method.'''
         # TBASE-ST: test that __str__() returns a string object
         self.assertIs(type(self.m.__str__()), str)
+
+        # TBASE-ST: test that __str__ returns a string for the right class
+        self.assertEqual(self.m.__str__().split()[0], "[BaseModel]")
     # _________________________________________
     # end test for methods
     # ________________________________________

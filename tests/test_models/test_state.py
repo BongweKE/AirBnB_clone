@@ -15,6 +15,13 @@ class TestState(unittest.TestCase):
         self.m = State()
 
     # Tests for attributes
+
+    def test_name(self):
+        ''' Tests for name attribute.'''
+
+        # TSTAT-NM: test if name is a string object
+        self.assertIs(type(State.name), str)
+
     def test_id(self):
         """
         Tests for id attribute of our state model
