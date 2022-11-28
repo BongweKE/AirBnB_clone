@@ -87,7 +87,17 @@ class TestFileStorage(unittest.TestCase):
         # TFILE-RL: test that reload() does not return other types
         for cls in TestFileStorage.types2:
             with self.subTest(i=cls):
-                self.assertIsNot(storage.reload(), cls)
+                self.assertIsNot(type(storage.reload()), cls)
+
+        storage.reload()
+        old_storage = storage.all().copy()
+        Review(), Amenity()
+        storage.save()
+        storage.reload()
+        new_storage = storage.all()
+
+        # TFILE-RL: test correct number of instances are reloaded by reload()
+        self.assertEqual(len(old_storage) + 2, len(new_storage))
     # ------------------------
     # end of tests for methods
     # ------------------------
