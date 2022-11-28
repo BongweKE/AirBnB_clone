@@ -15,6 +15,25 @@ class TestReview(unittest.TestCase):
         self.m = Review()
 
     # Tests for attributes
+
+    def test_place_id(self):
+        ''' Tests for place_id attribute.'''
+
+        # TREVI-PI: test if place_id is a string object
+        self.assertIs(type(Review.place_id), str)
+
+    def test_user_id(self):
+        ''' Tests for user_id attribute.'''
+
+        # TREVI-UI: test if user_id is a string object
+        self.assertIs(type(Review.user_id), str)
+
+    def test_text(self):
+        ''' Tests for text attribute.'''
+
+        # TREVI-TX: test if text is a string object
+        self.assertIs(type(Review.text), str)
+
     def test_id(self):
         """
         Tests for id attribute of our review model
