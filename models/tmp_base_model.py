@@ -7,17 +7,14 @@ from models import storage
 
 
 class BaseModel:
-    """
-
+    """ Implementation of the BaseModel class.
     """
     def __init__(self, *args, **kwargs):
         """Initialization of BaseModel instance
         """
 
-        print("Before update block")
         if len(kwargs) > 0:
             # Reload a saved instance
-            print("dict before update:", self.__dict__)
             del kwargs['__class__']
             kwargs['created_at'] =\
                 datetime.datetime.fromisoformat(kwargs['created_at'])
@@ -44,8 +41,8 @@ class BaseModel:
         """A method that updates the public instance attribute
         `updated_at` with the current datetime
         """
-        storage.save()
         self.updated_at = datetime.datetime.utcnow()
+        storage.save()
 
     def to_dict(self):
         '''Returns a dictionary containing all key/values of the instance'''
