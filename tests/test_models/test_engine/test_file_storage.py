@@ -16,6 +16,9 @@ import unittest
 class TestFileStorage(unittest.TestCase):
     """ TestCase implementation for FileStorage class
     """
+
+    types2 = [int, float, str, list, tuple, set, dict]
+
     # -----------------------
     # start tests for methods
     # -----------------------
@@ -70,11 +73,21 @@ class TestFileStorage(unittest.TestCase):
         # TFILE-SV: test that save() returns None
         self.assertIs(storage.save(), None)
 
+        # TFILE-SV: test that save does not return other types
+        for cls in TestFileStorage.types2:
+            with self.subTest(i=cls):
+                self.assertIsNot(storage.save(), cls)
+
     def test_reload(self):
         ''' Test the reload() method.'''
 
         # TFILE-RL: test that reload() returns None
         self.assertIs(storage.reload(), None)
+
+        # TFILE-RL: test that reload() does not return other types
+        for cls in TestFileStorage.types2:
+            with self.subTest(i=cls):
+                self.assertIsNot(storage.reload(), cls)
     # ------------------------
     # end of tests for methods
     # ------------------------
