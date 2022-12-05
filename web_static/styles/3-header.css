@@ -1,0 +1,21 @@
+/* Styling for the header */
+header {
+    height: 70px;
+    width: 100%;
+    background-color: #FFF;
+    border-bottom: 1px solid #CCCCCC;
+}
+
+header .logo {
+    height: 100%;
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+}
+
+header .logo span {
+    display: block;
+    width: 150px;
+    height: 95%;
+    background: url("../images/hbnb_logo.png") no-repeat center center/cover;
+}

@@ -1,0 +1,16 @@
+/* Styling for footer of hbnb web static */
+footer {
+    height: 60px;
+    width: 100%;
+    background-color: white;
+    border-top: 1px solid #CCCCCC;
+    /* center text content */
+    /* I.  horizontally */
+    text-align: center;
+    /* II. vertically */
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    /* position self at the bottom */
+    justify-self: flex-end;
+}
